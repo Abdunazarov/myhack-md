@@ -1,0 +1,27 @@
+import type { ApplicationFormData } from "../api/types";
+
+export const defaultApplicationForm: ApplicationFormData = {
+  founderName: "",
+  founderEmail: "founder@demo.com",
+  companyName: "",
+  country: "Malaysia",
+  sector: "SaaS",
+  stage: "MVP",
+  incorporated: true,
+  companyAgeMonths: 12,
+  problem: "",
+  solution: "",
+  targetCustomers: "",
+  tractionSummary: "",
+  mrr: 0,
+  activeUsers: 0,
+  pilots: 0,
+  revenueGrowthPct: 0,
+  cac: 0,
+  burnMonthly: 0,
+  runwayMonths: 0,
+  grossMarginPct: 0,
+  fundingAsk: 0,
+  useOfFunds: "",
+  pitchText: "",
+};

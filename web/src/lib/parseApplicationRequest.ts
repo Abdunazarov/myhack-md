@@ -1,5 +1,4 @@
 import { applicationFormSchema, type ApplicationFormData } from "@/lib/validation/applicationSchema";
-import { extractPitchDeckText } from "@/server/services/intake/extractPitchDeckText";
 import { parseFinancialCsv } from "@/server/services/intake/parseFinancialCsv";
 
 export type ParsedApplicationRequest = {
@@ -44,6 +43,9 @@ export async function parseApplicationRequest(
     const pitchFile = form.get("pitchDeck");
     if (pitchFile instanceof File && pitchFile.size > 0) {
       try {
+        const { extractPitchDeckText } = await import(
+          "@/server/services/intake/extractPitchDeckText"
+        );
         const buffer = Buffer.from(await pitchFile.arrayBuffer());
         const mimeType = pitchFile.type || "application/pdf";
         const text = await extractPitchDeckText(buffer, mimeType);
