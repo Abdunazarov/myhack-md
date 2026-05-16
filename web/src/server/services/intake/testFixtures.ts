@@ -1,0 +1,28 @@
+import type { NormalizedApplication } from "@/lib/validation/applicationSchema";
+
+export const baseApplication: NormalizedApplication = {
+  founderName: "Aisha Rahman",
+  founderEmail: "aisha@example.com",
+  companyName: "PayFlow MY",
+  country: "Malaysia",
+  sector: "Fintech",
+  stage: "Revenue",
+  incorporated: true,
+  companyAgeMonths: 18,
+  problem: "SMEs struggle with fragmented payment reconciliation across banks.",
+  solution: "Unified B2B payment orchestration with automated reconciliation.",
+  targetCustomers: "SME retailers and F&B chains with 5-50 outlets.",
+  tractionSummary: "12 paying SME clients and two enterprise pilots in progress.",
+  mrr: 12000,
+  activeUsers: 340,
+  pilots: 2,
+  revenueGrowthPct: 22,
+  cac: 180,
+  burnMonthly: 45000,
+  runwayMonths: 5,
+  grossMarginPct: 62,
+  fundingAsk: 350000,
+  useOfFunds: "Expand sales team and complete enterprise pilot integrations.",
+  pitchText: "PayFlow automates B2B payment reconciliation for Malaysian SMEs.",
+  submittedAt: new Date("2026-05-16T00:00:00.000Z").toISOString(),
+};

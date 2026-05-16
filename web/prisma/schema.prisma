@@ -1,0 +1,196 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum ProjectState {
+  Lead
+  In_Program
+  Graduated
+  Dead
+}
+
+enum ApplicationStatus {
+  Submitted
+  Auditing
+  Audited
+  Eligible
+  Rejected
+  Routed
+  Needs_Review
+}
+
+enum ProgrammeType {
+  Grant
+  Pre_Accelerator
+  Mentorship
+  VC_Readiness
+  Sandbox
+}
+
+enum RuleType {
+  Hard
+  Soft
+}
+
+enum RoutingDecisionType {
+  Grant_Eligible
+  Auto_Routed
+  Needs_Review
+  Rejected
+}
+
+enum UserRole {
+  Admin
+  Founder
+  Mentor
+  Investor
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         UserRole
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model EcosystemProject {
+  id               String   @id @default(cuid())
+  name             String
+  state            ProjectState @default(Lead)
+  sector           String
+  stage            String
+  country          String
+  founderName      String
+  founderEmail     String
+  metricsHistory   String   @default("{}")
+  passportSnapshot String   @default("{}")
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  applications Application[]
+}
+
+model Programme {
+  id          String        @id @default(cuid())
+  slug        String        @unique
+  name        String
+  type        ProgrammeType
+  description String
+  priority    Int           @default(0)
+  active      Boolean       @default(true)
+
+  rules        ProgrammeRule[]
+  applications Application[] @relation("TargetProgramme")
+  routingFrom  RoutingDecision[] @relation("FromProgramme")
+  routingTo    RoutingDecision[] @relation("RecommendedProgramme")
+}
+
+model ProgrammeRule {
+  id            String   @id @default(cuid())
+  programmeId   String
+  ruleKey       String
+  ruleType      RuleType
+  operator      String
+  expectedValue String
+  failureReason String
+  weight        Float    @default(1)
+
+  programme Programme @relation(fields: [programmeId], references: [id], onDelete: Cascade)
+
+  @@index([programmeId])
+}
+
+model BenchmarkProfile {
+  id                   String @id @default(cuid())
+  sector               String
+  stage                String
+  metricName           String
+  p25                  Float
+  median               Float
+  p75                  Float
+  successfulCohortCount Int   @default(0)
+  sourceCohortYear     Int
+
+  @@index([sector, stage, metricName])
+}
+
+model Application {
+  id                    String            @id @default(cuid())
+  ecosystemProjectId    String
+  targetProgrammeId     String
+  status                ApplicationStatus @default(Submitted)
+  rawApplication        String            @default("{}")
+  normalizedApplication String            @default("{}")
+  pitchText             String?
+  pitchDeckFileName     String?
+  pitchDeckMimeType     String?
+  pitchDeckText         String?
+  financialMetrics      String            @default("{}")
+  submittedAt           DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
+
+  ecosystemProject EcosystemProject @relation(fields: [ecosystemProjectId], references: [id], onDelete: Cascade)
+  targetProgramme  Programme          @relation("TargetProgramme", fields: [targetProgrammeId], references: [id])
+  intakeAudits     IntakeAudit[]
+  routingDecisions RoutingDecision[]
+}
+
+model IntakeAudit {
+  id                String   @id @default(cuid())
+  applicationId     String
+  readinessScore    Float
+  aiSummary         String?
+  founderReport     String?
+  strengths         String   @default("[]")
+  riskFlags         String   @default("[]")
+  missingInformation String  @default("[]")
+  benchmarkDeltas   String   @default("[]")
+  eligibilityResult String  @default("{}")
+  scoreBreakdown    String   @default("{}")
+  modelUsed         String?
+  aiFallback        Boolean  @default(false)
+  createdAt         DateTime @default(now())
+
+  application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@index([applicationId])
+}
+
+model RoutingDecision {
+  id                     String              @id @default(cuid())
+  applicationId          String
+  fromProgrammeId        String?
+  recommendedProgrammeId String
+  decisionType           RoutingDecisionType
+  reasonCodes            String              @default("[]")
+  explanation            String
+  adminConfirmed         Boolean             @default(false)
+  adminNote              String?
+  createdAt              DateTime            @default(now())
+
+  application          Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  fromProgramme        Programme?  @relation("FromProgramme", fields: [fromProgrammeId], references: [id])
+  recommendedProgramme Programme   @relation("RecommendedProgramme", fields: [recommendedProgrammeId], references: [id])
+
+  @@index([applicationId])
+}
+
+model AuditEvent {
+  id         String   @id @default(cuid())
+  entityType String
+  entityId   String
+  eventType  String
+  actorType  String
+  metadata   String   @default("{}")
+  createdAt  DateTime @default(now())
+
+  @@index([entityType, entityId])
+}
