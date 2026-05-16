@@ -1,17 +1,28 @@
-# Cradle LinkRouter Backend — Modules 1 & 2
+# Cradle LinkRouter
 
-API-only backend for Cradle LinkRouter: Smart Intake, Auto-Routing, and Dynamic Cohort Orchestration.
+Full-stack app: Next.js API (`src/app/api`) + Vite React UI (`client/`).
 
 ## Quick Start
 
 ```bash
+cd web
 npm install
 npm run db:migrate
 npm run db:seed
 npm run dev
 ```
 
-Backend runs on `http://localhost:3000`.
+- **API:** http://localhost:3000/api/health  
+- **UI:** http://localhost:5173 (proxies `/api` → backend)
+
+Production (single port):
+
+```bash
+npm run build
+npm start
+```
+
+Serves the built UI from `public/` on http://localhost:3000 with API routes unchanged.
 
 ## Demo accounts
 
@@ -22,31 +33,27 @@ Backend runs on `http://localhost:3000`.
 | Mentor | `mentor@cradle.com` | `demo123` |
 | Investor | `investor@cradle.com` | `demo123` |
 
-Use `Authorization: Bearer <token>` from `POST /api/auth/login`.
+The UI auto-signs in as Founder on Apply and Admin on the dashboard.
 
-## Module 1 — Smart Intake
+## Project layout
 
-- `POST /api/applications` — JSON or multipart (`application`, `pitchDeck` PDF, `financialModel` CSV)
-- `PATCH /api/applications/:id?reaudit=true`
-- `POST /api/applications/:id/audit`
-- Admin intake + `POST /api/admin/intake/:id/decision` (enrolls project `In_Program` on confirm)
+```
+web/
+  client/          # Vite + React UI (Module 1 screens)
+  src/app/api/     # Next.js API routes
+  prisma/          # SQLite schema + seeds
+  public/          # Vite build output (after npm run build:ui)
+```
 
-## Module 2 — Cohort Orchestration
+## Environment
 
-- `GET /api/matching/mentors` — 5 mentors with AI-derived skill matrices (2024 cohort)
-- `POST /api/founder/roadblock` — startup problem → explainable mentor match → `LinkageEntity`
-- `GET /api/mentor/dashboard` — assigned startups, intervention queue
-- `GET /api/admin/cohort-health` — health scores, stale linkages, intervention alerts
-- `POST /api/linkages/:id/feedback` — updates health score; may trigger `Requires_Intervention`
-- `POST /api/admin/mentors/rebuild-skills` — recompute matrices from historical outcomes
+Copy `.env.example` to `.env`. Set `BACKEND_CORS_ORIGIN=http://localhost:5173` for local UI dev.
 
-## Module 3 — Preview
-
-- `GET /api/investor/dashboard` — graduated startups with verified passports
-
-## Test & Verify
+## Test
 
 ```bash
+npm run test
+```
 npm run test    # 78 tests — unit + full API integration (Modules 1 & 2)
 npm run build
 ```

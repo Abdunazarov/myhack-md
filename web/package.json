@@ -1,10 +1,13 @@
 {
-  "name": "cradle-linkrouter-backend",
+  "name": "cradle-linkrouter",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "prisma generate && next build",
+    "dev": "concurrently -n api,ui -c blue,green \"npm run dev:api\" \"npm run dev:ui\"",
+    "dev:api": "next dev --webpack",
+    "dev:ui": "vite --config client/vite.config.ts",
+    "build": "npm run build:ui && prisma generate && next build",
+    "build:ui": "vite build --config client/vite.config.ts",
     "start": "next start",
     "lint": "eslint",
     "test": "prisma migrate deploy && vitest run",
@@ -22,6 +25,8 @@
     "@prisma/client": "^6.19.3",
     "bcryptjs": "^3.0.3",
     "jose": "^6.2.3",
+    "lucide-react": "^0.546.0",
+    "motion": "^12.23.24",
     "next": "16.2.6",
     "pdf-parse": "^2.4.5",
     "react": "19.2.4",
@@ -29,16 +34,25 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@tailwindcss/vite": "^4.1.14",
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20",
     "@types/pdf-parse": "^1.1.5",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^5.0.4",
+    "concurrently": "^9.2.1",
     "eslint": "^9",
     "eslint-config-next": "16.2.6",
     "prisma": "^6.19.3",
+    "tailwindcss": "^4.1.14",
     "tsx": "^4.22.0",
     "typescript": "^5",
-    "vitest": "^2.1.9"
+    "vite": "^6.2.3",
+    "vitest": "^3.2.4"
+  },
+  "overrides": {
+    "esbuild": "^0.25.0",
+    "postcss": "^8.5.10"
   }
 }
