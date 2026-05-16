@@ -20,6 +20,11 @@ import {
 } from "../lib/validateApplication";
 import type { ViewType } from "../App";
 import IntegerInput from "../components/IntegerInput";
+import { PageShell, PageHeader, FadeIn, StaggerGrid } from "../components/layout/PageShell";
+import StatCard from "../components/ui/StatCard";
+import Button from "../components/ui/Button";
+import { cardHover } from "../components/layout/motion";
+import StepTabs from "../components/layout/StepTabs";
 
 const inputClass =
   "w-full h-12 rounded-xl border border-outline-variant focus:border-primary outline-none focus:ring-1 focus:ring-primary bg-surface-container-lowest px-4 text-base";
@@ -122,46 +127,31 @@ export default function ApplyView({
   const steps = ["Founder", "Venture", "Traction", "Financials"];
 
   return (
-    <>
-      <main className="py-8 pb-32 px-gutter md:px-margin-desktop max-w-7xl mx-auto">
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold mb-2 text-on-background">Accelerator Application</h2>
-          <p className="text-base text-on-surface-variant">
-            Submit your profile for AI pitch audit and programme routing via the LinkRouter API.
-          </p>
-          <div className="mt-4 p-4 bg-secondary-container text-on-secondary-container rounded-xl flex gap-4 border border-outline-variant">
-            <Info className="shrink-0" size={24} />
-            <div className="text-sm">
-              <p className="font-bold">Demo mode</p>
-              <p className="mt-1 opacity-90">
-                Signed in as <strong>{user?.email ?? "founder@demo.com"}</strong>. Submission runs a
-                live audit against seeded benchmarks.
-              </p>
-            </div>
+    <PageShell className="pb-32">
+      <PageHeader
+        title="Accelerator application"
+        description="Submit your profile for AI pitch audit and programme routing via LinkRouter."
+      />
+      <FadeIn>
+        <div className="mb-8 p-4 bg-secondary-container text-on-secondary-container rounded-xl flex gap-4 border border-outline-variant">
+          <Info className="shrink-0" size={24} />
+          <div className="text-sm">
+            <p className="font-bold">Demo mode</p>
+            <p className="mt-1 opacity-90">
+              Signed in as <strong>{user?.email ?? "founder@demo.com"}</strong>. Submission runs a
+              live audit against seeded benchmarks.
+            </p>
           </div>
         </div>
+      </FadeIn>
 
-        <div className="flex gap-2 mb-8">
-          {steps.map((label, i) => (
-            <button
-              key={label}
-              type="button"
-              onClick={() => setStep(i)}
-              className={`px-4 py-2 rounded-full text-sm font-semibold ${
-                step === i
-                  ? "bg-primary text-on-primary"
-                  : "bg-surface-container text-on-surface-variant"
-              }`}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
+      <StepTabs steps={steps} current={step} onChange={setStep} layoutId="apply-step-underline" />
 
+      <FadeIn delay={0.05}>
         <form
           noValidate
           onSubmit={handleSubmit}
-          className="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm overflow-hidden mb-8"
+          className="bg-surface-container-lowest border border-outline-variant rounded-2xl shadow-sm overflow-hidden mb-8"
         >
           <div className="p-6 border-b border-outline-variant bg-surface-container-low flex justify-between items-center">
             <h3 className="text-xl font-semibold text-on-surface">
@@ -431,31 +421,23 @@ export default function ApplyView({
           </div>
 
           <div className="p-6 bg-surface-container-low border-t border-outline-variant flex justify-between items-center">
-            <button
+            <Button
               type="button"
+              variant="ghost"
               disabled={step === 0}
               onClick={() => setStep((s) => Math.max(0, s - 1))}
-              className="flex items-center gap-2 text-on-surface-variant font-semibold text-sm px-6 py-3 rounded-xl hover:bg-surface-container-high transition-colors disabled:opacity-40"
             >
               <ArrowLeft size={20} />
               Back
-            </button>
-            <div className="flex gap-4">
+            </Button>
+            <div className="flex gap-3">
               {step < steps.length - 1 ? (
-                <button
-                  type="button"
-                  onClick={goNext}
-                  className="bg-primary text-on-primary font-semibold text-sm px-8 py-3 rounded-full shadow-lg flex items-center gap-2"
-                >
+                <Button type="button" onClick={goNext}>
                   Next
                   <ArrowRight size={20} />
-                </button>
+                </Button>
               ) : (
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="bg-primary text-on-primary font-semibold text-sm px-8 py-3 rounded-full shadow-lg flex items-center gap-2 disabled:opacity-70"
-                >
+                <Button type="submit" disabled={submitting}>
                   {submitting ? (
                     <>
                       <Loader2 className="animate-spin" size={20} />
@@ -463,45 +445,48 @@ export default function ApplyView({
                     </>
                   ) : (
                     <>
-                      Submit & Audit
+                      Submit & audit
                       <ArrowRight size={20} />
                     </>
                   )}
-                </button>
+                </Button>
               )}
             </div>
           </div>
         </form>
 
-        <h3 className="text-xl font-semibold mb-4 text-on-background">Live Eligibility Audit</h3>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-16">
-          <div className="bg-surface-container rounded-xl p-4 border border-outline-variant">
-            <Building2 className="text-outline mb-1" size={24} />
-            <p className="text-xs font-medium">Company Status</p>
-            <p className="text-xl font-semibold mt-4">
-              {form.companyName ? form.companyName : "Not set"}
-            </p>
-          </div>
-          <div className="bg-surface-container rounded-xl p-4 border border-outline-variant">
-            <Hourglass className="text-outline mb-1" size={24} />
-            <p className="text-xs font-medium">Runway</p>
-            <p className="text-xl font-semibold mt-4">
-              {form.runwayMonths > 0 ? `${form.runwayMonths} mo` : "—"}
-            </p>
-          </div>
-          <div className="bg-surface-container rounded-xl p-4 border border-outline-variant">
-            <Shapes className="text-outline mb-1" size={24} />
-            <p className="text-xs font-medium">Sector</p>
-            <p className="text-xl font-semibold mt-4">{form.sector || "—"}</p>
-          </div>
-          <div className="bg-primary-container text-on-primary-container rounded-xl p-4 border border-primary">
-            <ShieldCheck className="mb-1" size={24} />
-            <p className="text-xs font-medium">Form completeness</p>
-            <p className="text-xl font-bold mt-4">{readinessPreview}%</p>
-          </div>
-        </div>
-      </main>
+      </FadeIn>
 
-    </>
+      <FadeIn delay={0.1}>
+        <h3 className="text-xl font-semibold mb-4 text-on-background">Live eligibility preview</h3>
+        <StaggerGrid className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-16">
+          <StatCard
+            label="Company"
+            value={form.companyName || "—"}
+            icon={Building2}
+            hint={form.companyName ? "Registered name" : "Not set yet"}
+          />
+          <StatCard
+            label="Runway"
+            value={form.runwayMonths > 0 ? `${form.runwayMonths} mo` : "—"}
+            icon={Hourglass}
+            hint="Months of runway"
+          />
+          <StatCard
+            label="Sector"
+            value={form.sector || "—"}
+            icon={Shapes}
+            hint="Primary vertical"
+          />
+          <StatCard
+            label="Completeness"
+            value={`${readinessPreview}%`}
+            icon={ShieldCheck}
+            accent="primary"
+            hint="Updates as you type"
+          />
+        </StaggerGrid>
+      </FadeIn>
+    </PageShell>
   );
 }

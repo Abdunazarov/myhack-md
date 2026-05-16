@@ -1,36 +1,26 @@
 import { useEffect, useState } from "react";
 import {
   Loader2,
-  ChevronRight,
   Users,
   AlertCircle,
   Send,
   CheckCircle2,
+  FileText,
+  Handshake,
+  FolderKanban,
 } from "lucide-react";
 import { getFounderDashboard, submitRoadblock } from "../api/client";
-import type { FounderDashboard, FounderProject } from "../api/types";
+import type { FounderDashboard } from "../api/types";
 import { useAuth } from "../context/AuthContext";
 import type { ViewType } from "../App";
+import { PageShell, PageHeader, FadeIn, StaggerGrid } from "../components/layout/PageShell";
+import { cardHover } from "../components/layout/motion";
+import StatCard from "../components/ui/StatCard";
+import ProjectCard from "../components/ui/ProjectCard";
+import Button from "../components/ui/Button";
 
-function statusBadgeClass(status: string): string {
-  switch (status) {
-    case "Routed":
-      return "bg-secondary-container text-on-secondary-container";
-    case "Eligible":
-      return "bg-primary-container text-on-primary-container";
-    case "Submitted":
-      return "bg-tertiary-container text-on-tertiary-container";
-    case "Needs_Review":
-      return "bg-error-container/30 text-error";
-    default:
-      return "bg-surface-container-high text-on-surface-variant";
-  }
-}
-
-function readinessForProject(project: FounderProject): string {
-  const score = project.latestApplication?.intakeAudits?.[0]?.readinessScore;
-  return score != null ? `${Math.round(score)}%` : "—";
-}
+const inputClass =
+  "w-full rounded-xl border border-outline-variant bg-surface-container-lowest px-4 text-base focus:border-primary outline-none focus:ring-1 focus:ring-primary transition-colors";
 
 export default function FounderDashboardView({
   onNavigate,
@@ -120,170 +110,183 @@ export default function FounderDashboardView({
     }
   };
 
+  const founderName = dashboard?.founder?.name;
+
   return (
-    <main className="py-8 pb-12 px-gutter md:px-margin-desktop max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold text-on-background mb-2">Founder Dashboard</h1>
-        {dashboard?.founder && (
-          <p className="text-on-surface-variant mb-8">
-            Welcome back, {dashboard.founder.name}
+    <PageShell className="pb-12 space-y-8">
+      <PageHeader
+        title="Founder dashboard"
+        description={
+          founderName
+            ? `Welcome back, ${founderName} — track intake, readiness, and mentor support.`
+            : "Track applications, readiness scores, and mentor matching."
+        }
+        action={
+          <Button onClick={() => onNavigate("apply")} className="hidden sm:inline-flex">
+            New application
+          </Button>
+        }
+      />
+
+      {loading && (
+        <FadeIn className="flex justify-center py-24">
+          <Loader2 className="animate-spin text-primary" size={40} />
+        </FadeIn>
+      )}
+
+      {error && (
+        <FadeIn>
+          <p className="text-error text-center py-12 font-medium rounded-xl bg-error-container/20 border border-error/20">
+            {error}
           </p>
-        )}
+        </FadeIn>
+      )}
 
-        {loading && (
-          <div className="flex justify-center py-24">
-            <Loader2 className="animate-spin text-primary" size={40} />
-          </div>
-        )}
+      {!loading && !error && dashboard && (
+        <>
+          <StaggerGrid className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-5">
+            <StatCard
+              label="Applications"
+              value={dashboard.stats.applications}
+              icon={FileText}
+              accent="primary"
+              hint="Submitted through LinkRouter intake"
+            />
+            <StatCard
+              label="Active mentorships"
+              value={dashboard.stats.activeMentorships}
+              icon={Handshake}
+              accent="secondary"
+              hint="Ongoing mentor assignments"
+            />
+          </StaggerGrid>
 
-        {error && (
-          <p className="text-error text-center py-12 font-medium">{error}</p>
-        )}
-
-        {!loading && !error && dashboard && (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-              <div className="bg-surface-container-lowest border border-outline-variant p-6 rounded-xl">
-                <p className="text-xs font-semibold uppercase text-on-surface-variant">
-                  Applications
-                </p>
-                <h2 className="text-4xl font-bold mt-1">{dashboard.stats.applications}</h2>
+          <FadeIn delay={0.1}>
+            <section className="space-y-4">
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-2">
+                  <FolderKanban className="text-primary" size={22} />
+                  <h2 className="text-xl font-semibold text-on-background">Your projects</h2>
+                </div>
+                <span className="text-sm text-on-surface-variant tabular-nums">
+                  {dashboard.projects.length} total
+                </span>
               </div>
-              <div className="bg-surface-container-lowest border border-outline-variant p-6 rounded-xl">
-                <p className="text-xs font-semibold uppercase text-on-surface-variant">
-                  Active Mentorships
-                </p>
-                <h2 className="text-4xl font-bold mt-1">{dashboard.stats.activeMentorships}</h2>
-              </div>
-            </div>
 
-            <section className="mb-10">
-              <h2 className="text-xl font-semibold mb-4">Your Projects</h2>
               {dashboard.projects.length === 0 ? (
-                <div className="bg-surface-container-low rounded-xl p-8 text-center">
-                  <p className="text-on-surface-variant mb-4">No projects yet.</p>
-                  <button
-                    type="button"
-                    onClick={() => onNavigate("apply")}
-                    className="bg-primary text-on-primary px-6 py-3 rounded-xl text-sm font-semibold"
-                  >
-                    Submit your first application
-                  </button>
+                <div
+                  className={`rounded-2xl border border-dashed border-outline-variant bg-surface-container-low p-10 text-center ${cardHover}`}
+                >
+                  <p className="text-on-surface-variant mb-5 max-w-sm mx-auto">
+                    No projects yet. Submit your first application to get a readiness audit and programme
+                    routing.
+                  </p>
+                  <Button onClick={() => onNavigate("apply")}>Submit application</Button>
                 </div>
               ) : (
-                <div className="space-y-4">
+                <StaggerGrid className="space-y-4">
                   {dashboard.projects.map((project) => (
-                    <div
+                    <ProjectCard
                       key={project.id}
-                      className="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-4"
-                    >
-                      <div>
-                        <h3 className="text-lg font-semibold">{project.name}</h3>
-                        <p className="text-sm text-on-surface-variant mt-1">
-                          {project.sector} · {project.stage} · {project.state.replace(/_/g, " ")}
-                        </p>
-                        {project.latestApplication && (
-                          <>
-                            <span
-                              className={`inline-block mt-2 px-3 py-1 text-xs font-semibold rounded-full ${statusBadgeClass(project.latestApplication.status)}`}
-                            >
-                              {project.latestApplication.status.replace(/_/g, " ")}
-                            </span>
-                            {project.latestApplication.targetProgramme?.name && (
-                              <p className="text-xs text-on-surface-variant mt-2">
-                                → {project.latestApplication.targetProgramme.name}
-                              </p>
-                            )}
-                          </>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-4">
-                        <div className="text-right">
-                          <p className="text-xs text-on-surface-variant">Readiness</p>
-                          <p className="text-xl font-bold">{readinessForProject(project)}</p>
-                        </div>
-                        {project.latestApplication && (
-                          <button
-                            type="button"
-                            onClick={() =>
-                              onViewApplication(project.latestApplication!.id)
-                            }
-                            className="flex items-center gap-2 bg-primary text-on-primary px-4 py-2 rounded-xl text-sm font-semibold"
-                          >
-                            View results
-                            <ChevronRight size={18} />
-                          </button>
-                        )}
-                      </div>
-                    </div>
+                      project={project}
+                      onViewResults={onViewApplication}
+                    />
                   ))}
-                </div>
+                </StaggerGrid>
               )}
             </section>
+          </FadeIn>
 
-            {dashboard.projects.some((p) => p.mentorMatchingEligible) && (
-              <section className="bg-surface-container-lowest border border-outline-variant rounded-xl p-8">
-                <div className="flex items-center gap-2 mb-4">
-                  <Users className="text-primary" size={24} />
-                  <h2 className="text-xl font-semibold">Request Mentor Help</h2>
-                </div>
-                <p className="text-sm text-on-surface-variant mb-4">
-                  Describe a roadblock and we will match you with a mentor.
-                </p>
-                <select
-                  className="w-full h-12 rounded-xl border border-outline-variant bg-surface-container-lowest px-4 mb-4"
-                  value={selectedProjectId ?? ""}
-                  onChange={(e) => setSelectedProjectId(e.target.value)}
-                >
-                  {dashboard.projects
-                    .filter((p) => p.mentorMatchingEligible)
-                    .map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.name}
-                      </option>
-                    ))}
-                </select>
-                <textarea
-                  rows={3}
-                  className="w-full rounded-xl border border-outline-variant bg-surface-container-lowest px-4 py-3 mb-4"
-                  placeholder="Describe your roadblock (min 20 characters)..."
-                  value={roadblockText}
-                  onChange={(e) => setRoadblockText(e.target.value)}
-                />
-                {roadblockError && (
-                  <p className="text-error text-sm mb-4 flex items-center gap-2">
-                    <AlertCircle size={16} />
-                    {roadblockError}
-                  </p>
-                )}
-                {roadblockResult && (
-                  <div className="bg-primary-container text-on-primary-container rounded-xl p-4 mb-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <CheckCircle2 size={20} />
-                      <span className="font-semibold">Matched: {roadblockResult.mentorName}</span>
-                      <span className="text-xs opacity-80">
-                        ({Math.round(roadblockResult.matchScore * 100)}% match)
-                      </span>
-                    </div>
-                    <p className="text-sm">{roadblockResult.explanation}</p>
+          {dashboard.projects.some((p) => p.mentorMatchingEligible) && (
+            <FadeIn delay={0.15}>
+              <section
+                className={`rounded-2xl border border-outline-variant bg-surface-container-lowest p-6 md:p-8 ${cardHover}`}
+              >
+                <div className="flex items-center gap-3 mb-5">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10">
+                    <Users className="text-primary" size={22} />
                   </div>
-                )}
-                <button
-                  type="button"
-                  onClick={handleRoadblockSubmit}
-                  disabled={roadblockSubmitting}
-                  className="flex items-center gap-2 bg-primary text-on-primary px-6 py-3 rounded-xl text-sm font-semibold disabled:opacity-70"
-                >
-                  {roadblockSubmitting ? (
-                    <Loader2 className="animate-spin" size={18} />
-                  ) : (
-                    <Send size={18} />
+                  <div>
+                    <h2 className="text-xl font-semibold text-on-background">Request mentor help</h2>
+                    <p className="text-sm text-on-surface-variant mt-0.5">
+                      Describe a roadblock — we match you using cohort history.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-4 max-w-2xl">
+                  <div>
+                    <label className="text-sm font-medium text-on-surface-variant mb-1.5 block">
+                      Project
+                    </label>
+                    <select
+                      className={`${inputClass} h-12`}
+                      value={selectedProjectId ?? ""}
+                      onChange={(e) => setSelectedProjectId(e.target.value)}
+                    >
+                      {dashboard.projects
+                        .filter((p) => p.mentorMatchingEligible)
+                        .map((p) => (
+                          <option key={p.id} value={p.id}>
+                            {p.name}
+                          </option>
+                        ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-on-surface-variant mb-1.5 block">
+                      Roadblock
+                    </label>
+                    <textarea
+                      rows={3}
+                      className={`${inputClass} py-3 resize-none`}
+                      placeholder="Describe your roadblock (min 20 characters)..."
+                      value={roadblockText}
+                      onChange={(e) => setRoadblockText(e.target.value)}
+                    />
+                  </div>
+
+                  {roadblockError && (
+                    <p className="text-error text-sm flex items-center gap-2">
+                      <AlertCircle size={16} />
+                      {roadblockError}
+                    </p>
                   )}
-                  Submit roadblock
-                </button>
+
+                  {roadblockResult && (
+                    <FadeIn>
+                      <div className="rounded-xl bg-primary-container text-on-primary-container p-4 border border-primary/20">
+                        <div className="flex items-center gap-2 mb-2 flex-wrap">
+                        <CheckCircle2 size={20} />
+                        <span className="font-semibold">Matched: {roadblockResult.mentorName}</span>
+                        <span className="text-xs opacity-80">
+                          ({Math.round(roadblockResult.matchScore * 100)}% match)
+                        </span>
+                      </div>
+                        <p className="text-sm leading-relaxed">{roadblockResult.explanation}</p>
+                      </div>
+                    </FadeIn>
+                  )}
+
+                  <Button
+                    onClick={handleRoadblockSubmit}
+                    disabled={roadblockSubmitting}
+                    className="w-full sm:w-auto"
+                  >
+                    {roadblockSubmitting ? (
+                      <Loader2 className="animate-spin" size={18} />
+                    ) : (
+                      <Send size={18} />
+                    )}
+                    Submit roadblock
+                  </Button>
+                </div>
               </section>
-            )}
-          </>
-        )}
-    </main>
+            </FadeIn>
+          )}
+        </>
+      )}
+    </PageShell>
   );
 }
