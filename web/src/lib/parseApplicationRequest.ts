@@ -1,5 +1,6 @@
 import { applicationFormSchema, type ApplicationFormData } from "@/lib/validation/applicationSchema";
 import { extractPitchDeckText } from "@/server/services/intake/extractPitchDeckText";
+import { parseFinancialCsv } from "@/server/services/intake/parseFinancialCsv";
 
 export type ParsedApplicationRequest = {
   data: ApplicationFormData | Partial<ApplicationFormData>;
@@ -8,6 +9,7 @@ export type ParsedApplicationRequest = {
     mimeType: string;
     text: string;
   };
+  financialModelSummary?: string;
 };
 
 const updateApplicationSchema = applicationFormSchema.partial();
@@ -36,33 +38,47 @@ export async function parseApplicationRequest(
       return { ok: false, error: parsed.error.flatten(), status: 400 };
     }
 
-    const file = form.get("pitchDeck");
-    if (!file || !(file instanceof File) || file.size === 0) {
-      return { ok: true, value: { data: parsed.data } };
+    let pitchDeck: ParsedApplicationRequest["pitchDeck"];
+    let financialModelSummary: string | undefined;
+
+    const pitchFile = form.get("pitchDeck");
+    if (pitchFile instanceof File && pitchFile.size > 0) {
+      try {
+        const buffer = Buffer.from(await pitchFile.arrayBuffer());
+        const mimeType = pitchFile.type || "application/pdf";
+        const text = await extractPitchDeckText(buffer, mimeType);
+        pitchDeck = { fileName: pitchFile.name, mimeType, text };
+      } catch (err) {
+        return {
+          ok: false,
+          error: err instanceof Error ? err.message : "Pitch deck processing failed",
+          status: 400,
+        };
+      }
     }
 
-    try {
-      const buffer = Buffer.from(await file.arrayBuffer());
-      const mimeType = file.type || "application/pdf";
-      const text = await extractPitchDeckText(buffer, mimeType);
-      return {
-        ok: true,
-        value: {
-          data: parsed.data,
-          pitchDeck: {
-            fileName: file.name,
-            mimeType,
-            text,
-          },
-        },
-      };
-    } catch (err) {
-      return {
-        ok: false,
-        error: err instanceof Error ? err.message : "Pitch deck processing failed",
-        status: 400,
-      };
+    const csvFile = form.get("financialModel");
+    if (csvFile instanceof File && csvFile.size > 0) {
+      try {
+        const csvText = await csvFile.text();
+        const { summary, rawRowCount } = parseFinancialCsv(csvText);
+        financialModelSummary = JSON.stringify({ summary, rawRowCount, fileName: csvFile.name });
+        const d = parsed.data as Record<string, unknown>;
+        if (summary.mrr != null) d.mrr = summary.mrr;
+        if (summary.burnMonthly != null) d.burnMonthly = summary.burnMonthly;
+        if (summary.runwayMonths != null) d.runwayMonths = summary.runwayMonths;
+        if (summary.cac != null) d.cac = summary.cac;
+        if (summary.grossMarginPct != null) d.grossMarginPct = summary.grossMarginPct;
+      } catch (err) {
+        return {
+          ok: false,
+          error: err instanceof Error ? err.message : "Financial CSV processing failed",
+          status: 400,
+        };
+      }
     }
+
+    return { ok: true, value: { data: parsed.data, pitchDeck, financialModelSummary } };
   }
 
   let body: unknown;

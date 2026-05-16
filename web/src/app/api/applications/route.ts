@@ -71,13 +71,21 @@ export async function POST(request: Request) {
       return jsonError("Founder email must match your account", 403);
     }
 
-    const pitchOpts = parsed.value.pitchDeck
-      ? {
-          pitchDeckFileName: parsed.value.pitchDeck.fileName,
-          pitchDeckMimeType: parsed.value.pitchDeck.mimeType,
-          pitchDeckText: parsed.value.pitchDeck.text,
-        }
-      : undefined;
+    const pitchOpts =
+      parsed.value.pitchDeck || parsed.value.financialModelSummary
+        ? {
+            ...(parsed.value.pitchDeck
+              ? {
+                  pitchDeckFileName: parsed.value.pitchDeck.fileName,
+                  pitchDeckMimeType: parsed.value.pitchDeck.mimeType,
+                  pitchDeckText: parsed.value.pitchDeck.text,
+                }
+              : {}),
+            ...(parsed.value.financialModelSummary
+              ? { financialModelSummary: parsed.value.financialModelSummary }
+              : {}),
+          }
+        : undefined;
 
     const { application } = await createApplication(
       parsed.value.data as import("@/lib/validation/applicationSchema").ApplicationFormData,

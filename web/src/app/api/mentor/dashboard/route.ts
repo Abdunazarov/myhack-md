@@ -2,6 +2,7 @@ import { UserRole } from "@prisma/client";
 import { jsonOk, OPTIONS } from "@/lib/api";
 import { requireAuthWithRoles } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { parseSkillMatrix } from "@/server/services/mentor/skillTags";
 
 export { OPTIONS };
 
@@ -9,62 +10,98 @@ export async function GET(request: Request) {
   const auth = await requireAuthWithRoles(request, [UserRole.Mentor, UserRole.Admin]);
   if (auth instanceof Response) return auth;
 
-  const inProgram = await prisma.ecosystemProject.findMany({
-    where: { state: "In_Program" },
-    orderBy: { updatedAt: "desc" },
-    take: 10,
-  });
+  const mentorUser =
+    auth.role === UserRole.Mentor
+      ? await prisma.user.findUnique({ where: { email: auth.email }, include: { mentorNode: true } })
+      : null;
 
-  const mentorTrackApps = await prisma.application.findMany({
-    where: {
-      routingDecisions: {
-        some: {
-          recommendedProgramme: { slug: "mentor-readiness" },
+  const mentor = mentorUser?.mentorNode
+    ? await prisma.mentorNode.findUnique({
+        where: { id: mentorUser.mentorNode.id },
+        include: {
+          linkages: {
+            include: { ecosystemProject: true },
+            orderBy: { updatedAt: "desc" },
+          },
+          historicalOutcomes: { orderBy: { createdAt: "desc" }, take: 5 },
         },
+      })
+    : await prisma.mentorNode.findFirst({
+        include: {
+      linkages: {
+        include: { ecosystemProject: true },
+        orderBy: { updatedAt: "desc" },
       },
-    },
-    include: {
-      ecosystemProject: true,
-      routingDecisions: {
-        orderBy: { createdAt: "desc" },
-        take: 1,
-        include: { recommendedProgramme: true },
+      historicalOutcomes: { orderBy: { createdAt: "desc" }, take: 5 },
+        },
+      });
+
+  if (!mentor && auth.role === UserRole.Mentor) {
+    return jsonOk({
+      module: "dynamic-cohort-orchestration",
+      message: "No mentor profile linked to this account",
+      mentor: { name: auth.name, email: auth.email },
+    });
+  }
+
+  const node =
+    mentor ??
+    (await prisma.mentorNode.findFirst({
+      include: {
+        linkages: { include: { ecosystemProject: true } },
+        historicalOutcomes: { take: 5 },
       },
-      intakeAudits: { orderBy: { createdAt: "desc" }, take: 1 },
-    },
-    orderBy: { submittedAt: "desc" },
-    take: 10,
-  });
+    }));
+
+  if (!node) {
+    return jsonOk({ module: "dynamic-cohort-orchestration", linkages: [], stats: {} });
+  }
+
+  const active = node.linkages.filter((l) => l.status === "Active");
+  const intervention = node.linkages.filter((l) => l.status === "Requires_Intervention");
 
   return jsonOk({
     module: "dynamic-cohort-orchestration",
-    status: "preview",
-    message:
-      "Module 2 mentor matching is preview-only for the hackathon. Data below is seeded for demo storytelling.",
-    mentor: { name: auth.name, email: auth.email },
-    stats: {
-      assignedStartups: inProgram.length,
-      pendingLinkages: 2,
-      completedSessions: 14,
+    status: "live",
+    mentor: {
+      id: node.id,
+      name: node.name,
+      email: node.email,
+      title: node.title,
+      dynamicSkillMatrix: parseSkillMatrix(node.dynamicSkillMatrix),
+      outcomeSummary: JSON.parse(node.outcomeSummary || "{}"),
+      capacity: node.availabilityCapacity,
+      activeCount: active.length,
     },
-    assignedStartups: inProgram.map((p) => ({
-      id: p.id,
-      name: p.name,
-      sector: p.sector,
-      stage: p.stage,
-      state: p.state,
-      founderName: p.founderName,
+    stats: {
+      assignedStartups: active.length,
+      requiresIntervention: intervention.length,
+      completedSessions: node.linkages.filter((l) => l.status === "Completed").length,
+      historicalOutcomes: node.historicalOutcomes.length,
+    },
+    assignedStartups: active.map((l) => ({
+      linkageId: l.id,
+      projectId: l.ecosystemProjectId,
+      name: l.ecosystemProject.name,
+      sector: l.ecosystemProject.sector,
+      stage: l.ecosystemProject.stage,
+      healthScore: l.healthScore,
+      goal: l.goal,
+      lastActivityAt: l.lastActivityAt,
     })),
-    pipeline: mentorTrackApps.map((a) => ({
-      applicationId: a.id,
-      companyName: a.ecosystemProject.name,
-      readinessScore: a.intakeAudits[0]?.readinessScore ?? null,
-      programme: a.routingDecisions[0]?.recommendedProgramme.name ?? null,
-      suggestedAction: "Schedule intro call",
+    interventionQueue: intervention.map((l) => ({
+      linkageId: l.id,
+      startup: l.ecosystemProject.name,
+      healthScore: l.healthScore,
+      goal: l.goal,
     })),
-    upcomingSessions: [
-      { id: "s1", startup: "PayFlow MY", topic: "GTM review", scheduledAt: "2026-05-20T10:00:00Z" },
-      { id: "s2", startup: "GreenLedger", topic: "Unit economics", scheduledAt: "2026-05-22T14:00:00Z" },
-    ],
+    recentHistoricalWins: node.historicalOutcomes
+      .filter((h) => h.outcome === "Success")
+      .map((h) => ({
+        startupName: h.startupName,
+        sector: h.sector,
+        problemTags: JSON.parse(h.problemTags),
+        feedbackLog: h.feedbackLog.slice(0, 200),
+      })),
   });
 }

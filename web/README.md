@@ -1,6 +1,6 @@
-# Cradle LinkRouter Backend — Module 1: Smart Intake & Auto-Routing
+# Cradle LinkRouter Backend — Modules 1 & 2
 
-API-only backend for the Cradle LinkRouter Smart Intake module. The UI is expected to live in a separate Lovable repo and consume this backend over HTTP.
+API-only backend for Cradle LinkRouter: Smart Intake, Auto-Routing, and Dynamic Cohort Orchestration.
 
 ## Quick Start
 
@@ -13,20 +13,7 @@ npm run dev
 
 Backend runs on `http://localhost:3000`.
 
-## Environment
-
-Copy `.env.example` to `.env` and set:
-
-- `DATABASE_URL` — SQLite default: `file:./dev.db`
-- `GEMINI_API_KEY` — Gemini API key; without it the backend uses deterministic fallback audit
-- `GEMINI_MODEL` — defaults to `gemini-2.0-flash`
-- `BACKEND_CORS_ORIGIN` — defaults to `*` for Lovable/local integration
-- `ENABLE_DEMO_RESET` — enables `POST /api/admin/demo/reset` and `GET /api/auth/demo-users`
-- `AUTH_SECRET` — JWT signing secret (min 16 chars)
-
-Do not commit `.env`.
-
-## Demo accounts (after `npm run db:seed`)
+## Demo accounts
 
 | Role | Email | Password |
 |------|-------|----------|
@@ -35,19 +22,27 @@ Do not commit `.env`.
 | Mentor | `mentor@cradle.com` | `demo123` |
 | Investor | `investor@cradle.com` | `demo123` |
 
-Send `Authorization: Bearer <token>` from `POST /api/auth/login` on protected routes.
+Use `Authorization: Bearer <token>` from `POST /api/auth/login`.
 
-## API Surface
+## Module 1 — Smart Intake
 
-- `GET /api/health`
-- `POST /api/auth/login` · `GET /api/auth/me` · `GET /api/auth/demo-users`
-- `GET /api/programmes` · `GET /api/programmes/:slug`
-- `GET|POST /api/applications` · `GET|PATCH /api/applications/:id` · `POST /api/applications/:id/audit`
-- `GET /api/admin/dashboard` · `GET /api/admin/intake` · `GET /api/admin/intake/:id` · `POST /api/admin/intake/:id/decision`
-- `POST /api/admin/demo/reset`
-- `GET /api/mentor/dashboard` · `GET /api/investor/dashboard`
+- `POST /api/applications` — JSON or multipart (`application`, `pitchDeck` PDF, `financialModel` CSV)
+- `PATCH /api/applications/:id?reaudit=true`
+- `POST /api/applications/:id/audit`
+- Admin intake + `POST /api/admin/intake/:id/decision` (enrolls project `In_Program` on confirm)
 
-`POST /api/applications` accepts JSON or `multipart/form-data` (`application` JSON + optional `pitchDeck` PDF).
+## Module 2 — Cohort Orchestration
+
+- `GET /api/matching/mentors` — 5 mentors with AI-derived skill matrices (2024 cohort)
+- `POST /api/founder/roadblock` — startup problem → explainable mentor match → `LinkageEntity`
+- `GET /api/mentor/dashboard` — assigned startups, intervention queue
+- `GET /api/admin/cohort-health` — health scores, stale linkages, intervention alerts
+- `POST /api/linkages/:id/feedback` — updates health score; may trigger `Requires_Intervention`
+- `POST /api/admin/mentors/rebuild-skills` — recompute matrices from historical outcomes
+
+## Module 3 — Preview
+
+- `GET /api/investor/dashboard` — graduated startups with verified passports
 
 ## Test & Verify
 
@@ -56,6 +51,6 @@ npm run test
 npm run build
 ```
 
-## Google integration
+## Environment
 
-Gemini API powers AI Pitch Audit (Feature 1.1).
+See `.env.example` — `DATABASE_URL`, `GEMINI_API_KEY`, `AUTH_SECRET`, `BACKEND_CORS_ORIGIN`.

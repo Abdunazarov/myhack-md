@@ -54,6 +54,13 @@ export async function POST(
     });
   }
 
+  if (decision === "confirm_route" || decision === "approve_grant") {
+    const { enrollProjectInProgramme } = await import(
+      "@/server/services/intake/enrollProject"
+    );
+    await enrollProjectInProgramme(id, programmeId);
+  }
+
   await prisma.auditEvent.create({
     data: {
       entityType: "application",
@@ -64,5 +71,10 @@ export async function POST(
     },
   });
 
-  return jsonOk({ success: true, application });
+  const refreshed = await prisma.application.findUnique({
+    where: { id },
+    include: { ecosystemProject: true, routingDecisions: { take: 1 } },
+  });
+
+  return jsonOk({ success: true, application: refreshed });
 }

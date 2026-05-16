@@ -79,6 +79,10 @@ async function createSeededApplication(
 }
 
 export async function seedDatabase() {
+  await prisma.roadblockRequest.deleteMany();
+  await prisma.linkageEntity.deleteMany();
+  await prisma.historicalOutcome.deleteMany();
+  await prisma.mentorNode.deleteMany();
   await prisma.auditEvent.deleteMany();
   await prisma.routingDecision.deleteMany();
   await prisma.intakeAudit.deleteMany();
@@ -330,10 +334,14 @@ export async function seedDatabase() {
   await runApplicationAudit(greenRouteApp.id);
   await runApplicationAudit(healthSyncApp.id);
 
+  const { seedModule2 } = await import("./seedModule2");
+  const mentors = await seedModule2(prisma, payFlowProject.id);
+
   console.log(
-    "Seed complete: users (4 demo roles), programmes, benchmarks, 3 audited applications, 2 graduated startups for investor demo",
+    "Seed complete: Module 1 (intake/audit/routing) + Module 2 (5 mentors, historical outcomes, active linkages)",
   );
-  console.log(`PayFlow MY project id (In_Program): ${payFlowProject.id}`);
+  console.log(`PayFlow MY project id: ${payFlowProject.id}`);
+  console.log(`Mentors seeded: ${mentors.length}`);
 }
 
 if (process.argv[1]?.endsWith("seed.ts")) {

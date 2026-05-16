@@ -4,7 +4,12 @@ import { normalizeApplication } from "./normalizeApplication";
 
 export async function createApplication(
   data: ApplicationFormData,
-  options?: { pitchDeckFileName?: string; pitchDeckMimeType?: string; pitchDeckText?: string },
+  options?: {
+    pitchDeckFileName?: string;
+    pitchDeckMimeType?: string;
+    pitchDeckText?: string;
+    financialModelSummary?: string;
+  },
 ) {
   const normalized = normalizeApplication(data);
   const combinedPitchText = [normalized.pitchText, options?.pitchDeckText]
@@ -47,6 +52,7 @@ export async function createApplication(
       pitchDeckFileName: options?.pitchDeckFileName ?? null,
       pitchDeckMimeType: options?.pitchDeckMimeType ?? null,
       pitchDeckText: options?.pitchDeckText ?? null,
+      financialModelSummary: options?.financialModelSummary ?? null,
       financialMetrics: JSON.stringify({
         mrr: normalized.mrr,
         cac: normalized.cac,

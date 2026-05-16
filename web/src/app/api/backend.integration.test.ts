@@ -9,6 +9,9 @@ import { POST as loginPOST } from "./auth/login/route";
 import { GET as demoUsersGET } from "./auth/demo-users/route";
 import { GET as mentorDashboardGET } from "./mentor/dashboard/route";
 import { GET as investorDashboardGET } from "./investor/dashboard/route";
+import { POST as roadblockPOST } from "./founder/roadblock/route";
+import { GET as cohortHealthGET } from "./admin/cohort-health/route";
+import { GET as mentorsGET } from "./matching/mentors/route";
 
 const validApplication = {
   founderName: "Maya Tan",
@@ -131,7 +134,7 @@ describe("backend API routes", () => {
     const body = await response.json();
     expect(response.status).toBe(200);
     expect(body.module).toBe("dynamic-cohort-orchestration");
-    expect(body.assignedStartups.length).toBeGreaterThan(0);
+    expect(body.stats.assignedStartups).toBeGreaterThan(0);
   });
 
   it("returns investor dashboard with graduated startups", async () => {
@@ -142,5 +145,49 @@ describe("backend API routes", () => {
     const body = await response.json();
     expect(response.status).toBe(200);
     expect(body.portfolio.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it("lists mentor skill matrices from 2024 cohort", async () => {
+    const response = await mentorsGET();
+    const body = await response.json();
+    expect(response.status).toBe(200);
+    expect(body.mentors.length).toBeGreaterThanOrEqual(5);
+    expect(body.mentors[0].dynamicSkillMatrix).toBeTruthy();
+  });
+
+  it("matches mentor to founder roadblock with explainable AI", async () => {
+    const token = await loginAs("founder@demo.com");
+    const project = await seedPrisma.ecosystemProject.findFirst({
+      where: { founderEmail: "founder@demo.com" },
+    });
+    expect(project).toBeTruthy();
+
+    const response = await roadblockPOST(
+      authRequest("http://localhost/api/founder/roadblock", token, {
+        method: "POST",
+        body: JSON.stringify({
+          ecosystemProjectId: project!.id,
+          roadblock:
+            "We struggle with enterprise sales pipeline and closing B2B fleet operator pilots for our emissions product.",
+          problemCategory: "B2B_Enterprise",
+        }),
+      }),
+    );
+    const body = await response.json();
+    expect(response.status).toBe(200);
+    expect(body.match.explanation).toContain("Matched");
+    expect(body.match.matchScore).toBeGreaterThan(0);
+    expect(body.linkage.id).toBeTruthy();
+  });
+
+  it("returns admin cohort health dashboard with intervention queue", async () => {
+    const token = await loginAs("admin@cradle.com");
+    const response = await cohortHealthGET(
+      authRequest("http://localhost/api/admin/cohort-health", token),
+    );
+    const body = await response.json();
+    expect(response.status).toBe(200);
+    expect(body.totals.activeLinkages).toBeGreaterThan(0);
+    expect(Array.isArray(body.alerts)).toBe(true);
   });
 });

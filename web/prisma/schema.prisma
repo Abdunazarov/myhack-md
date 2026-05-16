@@ -51,6 +51,19 @@ enum UserRole {
   Investor
 }
 
+enum LinkageStatus {
+  Active
+  Completed
+  Requires_Intervention
+  Cancelled
+}
+
+enum LinkageOutcome {
+  Success
+  Fail
+  Pivot
+}
+
 model User {
   id           String   @id @default(cuid())
   email        String   @unique
@@ -59,10 +72,12 @@ model User {
   role         UserRole
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+
+  mentorNode MentorNode?
 }
 
 model EcosystemProject {
-  id               String   @id @default(cuid())
+  id               String       @id @default(cuid())
   name             String
   state            ProjectState @default(Lead)
   sector           String
@@ -70,12 +85,14 @@ model EcosystemProject {
   country          String
   founderName      String
   founderEmail     String
-  metricsHistory   String   @default("{}")
-  passportSnapshot String   @default("{}")
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  metricsHistory   String       @default("{}")
+  passportSnapshot String       @default("{}")
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
 
-  applications Application[]
+  applications      Application[]
+  linkages          LinkageEntity[]
+  roadblockRequests RoadblockRequest[]
 }
 
 model Programme {
@@ -109,15 +126,15 @@ model ProgrammeRule {
 }
 
 model BenchmarkProfile {
-  id                   String @id @default(cuid())
-  sector               String
-  stage                String
-  metricName           String
-  p25                  Float
-  median               Float
-  p75                  Float
-  successfulCohortCount Int   @default(0)
-  sourceCohortYear     Int
+  id                    String @id @default(cuid())
+  sector                String
+  stage                 String
+  metricName            String
+  p25                   Float
+  median                Float
+  p75                   Float
+  successfulCohortCount Int    @default(0)
+  sourceCohortYear      Int
 
   @@index([sector, stage, metricName])
 }
@@ -134,6 +151,7 @@ model Application {
   pitchDeckMimeType     String?
   pitchDeckText         String?
   financialMetrics      String            @default("{}")
+  financialModelSummary String?
   submittedAt           DateTime          @default(now())
   updatedAt             DateTime          @updatedAt
 
@@ -144,20 +162,20 @@ model Application {
 }
 
 model IntakeAudit {
-  id                String   @id @default(cuid())
-  applicationId     String
-  readinessScore    Float
-  aiSummary         String?
-  founderReport     String?
-  strengths         String   @default("[]")
-  riskFlags         String   @default("[]")
-  missingInformation String  @default("[]")
-  benchmarkDeltas   String   @default("[]")
-  eligibilityResult String  @default("{}")
-  scoreBreakdown    String   @default("{}")
-  modelUsed         String?
-  aiFallback        Boolean  @default(false)
-  createdAt         DateTime @default(now())
+  id                 String   @id @default(cuid())
+  applicationId      String
+  readinessScore     Float
+  aiSummary          String?
+  founderReport      String?
+  strengths          String   @default("[]")
+  riskFlags          String   @default("[]")
+  missingInformation String   @default("[]")
+  benchmarkDeltas    String   @default("[]")
+  eligibilityResult  String   @default("{}")
+  scoreBreakdown     String   @default("{}")
+  modelUsed          String?
+  aiFallback         Boolean  @default(false)
+  createdAt          DateTime @default(now())
 
   application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
 
@@ -193,4 +211,82 @@ model AuditEvent {
   createdAt  DateTime @default(now())
 
   @@index([entityType, entityId])
+}
+
+// --- Module 2: Dynamic Cohort Orchestration ---
+
+model MentorNode {
+  id                   String   @id @default(cuid())
+  userId               String?  @unique
+  name                 String
+  email                String   @unique
+  title                String
+  availabilityCapacity Int      @default(5)
+  dynamicSkillMatrix   String   @default("{}")
+  outcomeSummary       String   @default("{}")
+  active               Boolean  @default(true)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  user                User?               @relation(fields: [userId], references: [id])
+  historicalOutcomes  HistoricalOutcome[]
+  linkages            LinkageEntity[]
+}
+
+model HistoricalOutcome {
+  id           String         @id @default(cuid())
+  mentorNodeId String
+  startupName  String
+  sector       String
+  stage        String
+  problemTags  String         @default("[]")
+  outcome      LinkageOutcome
+  feedbackLog  String
+  cohortYear   Int            @default(2024)
+  createdAt    DateTime       @default(now())
+
+  mentor MentorNode @relation(fields: [mentorNodeId], references: [id], onDelete: Cascade)
+
+  @@index([mentorNodeId])
+}
+
+model LinkageEntity {
+  id                 String          @id @default(cuid())
+  ecosystemProjectId String
+  mentorNodeId       String
+  goal               String
+  problemTags        String          @default("[]")
+  status             LinkageStatus   @default(Active)
+  healthScore        Float           @default(100)
+  finalOutcome       LinkageOutcome?
+  matchScore         Float?
+  matchExplanation   String?
+  feedbackLogs       String          @default("[]")
+  lastActivityAt     DateTime        @default(now())
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+
+  ecosystemProject EcosystemProject @relation(fields: [ecosystemProjectId], references: [id], onDelete: Cascade)
+  mentor           MentorNode       @relation(fields: [mentorNodeId], references: [id])
+
+  @@index([ecosystemProjectId])
+  @@index([mentorNodeId])
+  @@index([status])
+}
+
+model RoadblockRequest {
+  id                 String   @id @default(cuid())
+  ecosystemProjectId String
+  roadblock          String
+  problemCategory    String?
+  stage              String
+  sector             String
+  status             String   @default("matched")
+  matchedLinkageId   String?
+  matchExplanation   String?
+  createdAt          DateTime @default(now())
+
+  ecosystemProject EcosystemProject @relation(fields: [ecosystemProjectId], references: [id], onDelete: Cascade)
+
+  @@index([ecosystemProjectId])
 }

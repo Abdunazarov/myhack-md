@@ -96,12 +96,31 @@ export async function runApplicationAudit(applicationId: string): Promise<AuditP
     },
   });
 
+  const programmeSlugsInProgram = [
+    "mystartup-pre-accelerator",
+    "mentor-readiness",
+    "financial-model-repair",
+    "vc-readiness",
+  ];
+  const moveToProgram =
+    routing.decisionType === "Auto_Routed" ||
+    routing.decisionType === "Grant_Eligible" ||
+    routing.decisionType === "Needs_Review";
+
   await prisma.ecosystemProject.update({
     where: { id: application.ecosystemProjectId },
     data: {
+      ...(moveToProgram && programmeSlugsInProgram.includes(routing.recommendedProgrammeSlug)
+        ? { state: "In_Program" }
+        : {}),
       passportSnapshot: JSON.stringify({
         lastAudit: auditPayload,
         routedTo: routing.recommendedProgrammeSlug,
+        mentorMatchingEligible: [
+          "mentor-readiness",
+          "mystartup-pre-accelerator",
+          "vc-readiness",
+        ].includes(routing.recommendedProgrammeSlug),
       }),
     },
   });

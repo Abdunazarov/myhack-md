@@ -1,23 +1,24 @@
 # Cradle LinkRouter — Module Scope
 
-## Current MVP Focus: Module 1 — Smart Intake & Auto-Routing
+## Current MVP Focus: Modules 1 & 2 (Backend Complete)
 
-**Status:** Active development (API-only backend in `web/`)  
-**UI:** Built separately in Lovable / another repo  
-**Modules 2 & 3:** Planned integrations (not in current build)
+**Status:** API-only backend in `web/` — Module 1 + Module 2 MVP implemented  
+**UI:** Built separately in Lovable  
+**Module 3:** Investor preview API only (graduated passports from seed)
 
-### Module 1 (BUILD NOW)
-- **Feature 1.1:** AI Pitch Audit — pre-screening, benchmark comparison, readiness score
-- **Feature 1.2:** Ecosystem Routing — auto-route rejected grant applications to alternative programmes
+### Module 1 — Smart Intake & Auto-Routing ✅
+- **Feature 1.1:** AI Pitch Audit — pitch text, PDF deck, financial CSV, benchmarks, readiness score
+- **Feature 1.2:** Ecosystem Routing — auto-route to programmes; admin confirm enrolls project `In_Program`
+- Auth (Founder, Admin, Mentor, Investor), applications CRUD, admin intake pipeline
 
-### Module 2 — Dynamic Cohort Orchestration (FUTURE)
-- Outcome-based mentor entities
-- Autonomous matching engine
-- Cohort health dashboard
+### Module 2 — Dynamic Cohort Orchestration ✅
+- **Feature 2.1:** Outcome-Based Mentor Entity — `MentorNode` + `HistoricalOutcome` → `dynamicSkillMatrix`
+- **Feature 2.2:** Autonomous Matching — `POST /api/founder/roadblock` → explainable mentor match + `LinkageEntity`
+- **Feature 2.3:** Cohort Health Dashboard — `GET /api/admin/cohort-health` (intervention queue, alerts)
 
-### Module 3 — Verified Handoff (FUTURE)
-- Cradle Verified Passport
-- VC targeted push
+### Module 3 — Verified Handoff (PREVIEW)
+- Graduated startups + passport JSON in seed
+- `GET /api/investor/dashboard` — read-only portfolio
 
 ### Integration Path
-`Ecosystem_Project` created in Module 1 becomes the input entity for Module 2 mentor matching and Module 3 graduation handoff.
+`Ecosystem_Project` from Module 1 intake → enrolled `In_Program` → founder roadblock → Module 2 linkage → cohort health monitoring.
