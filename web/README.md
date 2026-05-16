@@ -47,9 +47,15 @@ Use `Authorization: Bearer <token>` from `POST /api/auth/login`.
 ## Test & Verify
 
 ```bash
-npm run test
+npm run test    # 78 tests — unit + full API integration (Modules 1 & 2)
 npm run build
 ```
+
+Test layout:
+- `module1.integration.test.ts` — intake, audit, routing, admin pipeline
+- `module2.integration.test.ts` — mentors, matching, linkages, cohort health
+- `z-full-coverage.integration.test.ts` — remaining endpoints, auth matrix, edge cases (runs last; includes demo reset)
+- `src/server/services/**/*.test.ts` — eligibility, benchmarks, routing, readiness, skill matrix, CSV parser
 
 ## Environment
 

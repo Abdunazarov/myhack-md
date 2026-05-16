@@ -1,0 +1,56 @@
+/** Full application payload for POST /api/applications (founder@demo.com). */
+export const founderApplicationPayload = {
+  founderName: "Maya Tan",
+  founderEmail: "founder@demo.com",
+  companyName: "LedgerPilot",
+  country: "Malaysia",
+  sector: "SaaS",
+  stage: "MVP",
+  incorporated: true,
+  companyAgeMonths: 10,
+  problem: "SMEs lose hours every week reconciling invoices and payments manually.",
+  solution: "An AI-assisted finance workspace that reconciles invoices, bank feeds, and reminders.",
+  targetCustomers: "Malaysia-based SMEs with recurring B2B invoices.",
+  tractionSummary: "Three paid pilots and a waitlist of 80 SMEs.",
+  mrr: 8000,
+  activeUsers: 200,
+  pilots: 3,
+  revenueGrowthPct: 18,
+  cac: 130,
+  burnMonthly: 25000,
+  runwayMonths: 6,
+  grossMarginPct: 70,
+  fundingAsk: 250000,
+  useOfFunds: "Hire two engineers and expand sales to Klang Valley SMEs.",
+  pitchText: "LedgerPilot automates invoice reconciliation for Malaysian SMEs.",
+};
+
+/** Idea-stage startup — should fail grant hard rules and route to Pre-Accelerator. */
+export const ideaStageApplicationPayload = {
+  founderName: "Test Idea Founder",
+  founderEmail: "idea-founder@test.com",
+  companyName: "IdeaLabs MY",
+  country: "Malaysia",
+  sector: "Edtech",
+  stage: "Idea",
+  incorporated: false,
+  companyAgeMonths: 3,
+  problem: "Students lack personalized learning paths in rural Malaysia schools.",
+  solution: "Adaptive learning app with offline-first content delivery for teachers.",
+  targetCustomers: "Rural secondary schools and tuition centres in East Malaysia.",
+  tractionSummary: "Prototype tested with 2 teachers; no paying customers yet.",
+  mrr: 0,
+  activeUsers: 0,
+  pilots: 0,
+  revenueGrowthPct: 0,
+  cac: 0,
+  burnMonthly: 5000,
+  runwayMonths: 10,
+  grossMarginPct: 0,
+  fundingAsk: 100000,
+  useOfFunds: "Build MVP and run pilot with three schools in Sabah.",
+  pitchText: "IdeaLabs brings adaptive learning to underserved rural students.",
+};
+
+export const sampleFinancialCsv = `mrr,burn,runway,cac,gross_margin
+8000,25000,6,130,70`;
