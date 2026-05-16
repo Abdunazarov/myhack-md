@@ -2,6 +2,7 @@ import { UserRole } from "@prisma/client";
 import { jsonOk, OPTIONS } from "@/lib/api";
 import { requireAuthWithRoles } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { getMentorReusability } from "@/server/services/mentor/mentorReusability";
 import { parseSkillMatrix } from "@/server/services/mentor/skillTags";
 
 export { OPTIONS };
@@ -96,6 +97,8 @@ export async function GET(request: Request) {
     .slice(0, 5)
     .map(([tag, score]) => ({ tag: tag.replace(/_/g, " "), score: Math.round((score as number) * 100) }));
 
+  const { trackRecord, suggestedAssignments } = await getMentorReusability(node.id);
+
   return jsonOk({
     module: "dynamic-cohort-orchestration",
     status: "live",
@@ -154,5 +157,7 @@ export async function GET(request: Request) {
         problemTags: JSON.parse(h.problemTags),
         feedbackLog: h.feedbackLog.slice(0, 200),
       })),
+    trackRecord,
+    suggestedAssignments,
   });
 }

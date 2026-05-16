@@ -248,6 +248,39 @@ export type MentorDashboard = {
     problemTags: string[];
     feedbackLog: string;
   }>;
+  trackRecord?: {
+    headline: string;
+    subheadline: string;
+    bySector: Array<{
+      sector: string;
+      mentored: number;
+      successCount: number;
+      successRate: number;
+      highlights: Array<{
+        startupName: string;
+        outcome: string;
+        cohortYear: number;
+        snippet: string;
+      }>;
+    }>;
+    provenSkills: Array<{ tag: string; score: number; proof: string }>;
+  };
+  suggestedAssignments?: Array<{
+    projectId: string;
+    name: string;
+    sector: string;
+    stage: string;
+    roadblock: string;
+    matchScore: number;
+    matchedCriteria: string[];
+    explanation: string;
+    similarPastWin: {
+      startupName: string;
+      sector: string;
+      outcome: string;
+      feedbackLog: string;
+    } | null;
+  }>;
 };
 
 export type RoadblockResponse = {

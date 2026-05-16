@@ -1,4 +1,5 @@
 import type { PrismaClient } from "@prisma/client";
+import { buildSkillMatrixFromOutcomes } from "../src/server/services/mentor/buildSkillMatrix";
 
 function daysAgo(n: number) {
   return new Date(Date.now() - n * 86400000);
@@ -183,4 +184,130 @@ export async function seedMentorShowcase(prisma: PrismaClient) {
       },
     ].filter((r) => r.ecosystemProjectId),
   });
+
+  await prisma.historicalOutcome.createMany({
+    data: [
+      {
+        mentorNodeId: sarah.id,
+        startupName: "CloudMesh MY",
+        sector: "IT",
+        stage: "Revenue",
+        problemTags: JSON.stringify(["B2B_Enterprise", "Go_To_Market"]),
+        outcome: "Success",
+        feedbackLog:
+          "Closed 3 enterprise cloud migration pilots; playbook reused for Cradle IT cohort matching.",
+        cohortYear: 2024,
+      },
+      {
+        mentorNodeId: sarah.id,
+        startupName: "DataVault Asia",
+        sector: "IT",
+        stage: "MVP",
+        problemTags: JSON.stringify(["B2B_Enterprise", "B2B_Sales"]),
+        outcome: "Success",
+        feedbackLog:
+          "Sarah restructured enterprise sales motion — 2 LOIs signed within 10 weeks for data residency product.",
+        cohortYear: 2024,
+      },
+      {
+        mentorNodeId: sarah.id,
+        startupName: "SysLogix",
+        sector: "IT",
+        stage: "Growth",
+        problemTags: JSON.stringify(["B2B_Enterprise", "Fundraising"]),
+        outcome: "Success",
+        feedbackLog:
+          "Enterprise GTM narrative used in seed extension; RM2.1M raised with Sarah's committee prep.",
+        cohortYear: 2024,
+      },
+    ],
+  });
+
+  const sarahOutcomes = await prisma.historicalOutcome.findMany({
+    where: { mentorNodeId: sarah.id },
+  });
+  const { matrix, summary } = buildSkillMatrixFromOutcomes(sarahOutcomes);
+  await prisma.mentorNode.update({
+    where: { id: sarah.id },
+    data: {
+      dynamicSkillMatrix: JSON.stringify(matrix),
+      outcomeSummary: JSON.stringify(summary),
+    },
+  });
+
+  const pipelineStartups = [
+    {
+      name: "CloudServe MY",
+      sector: "IT",
+      stage: "MVP",
+      founderName: "Wei Lin",
+      founderEmail: "wei@cloudserve.my",
+      roadblock:
+        "Need enterprise pilot playbook for managed cloud migration — 2 prospects waiting on security questionnaire.",
+      problemCategory: "B2B_Enterprise",
+    },
+    {
+      name: "SecureAPI Labs",
+      sector: "IT",
+      stage: "Revenue",
+      founderName: "Arif Rahman",
+      founderEmail: "arif@secureapi.my",
+      roadblock:
+        "Scale API monetization to 3 enterprise banking partners — struggling with procurement cycles and pilot conversion.",
+      problemCategory: "Go_To_Market",
+    },
+    {
+      name: "LedgerStack",
+      sector: "Fintech",
+      stage: "Revenue",
+      founderName: "Michelle Tan",
+      founderEmail: "michelle@ledgerstack.my",
+      roadblock:
+        "B2B reconciliation SaaS needs enterprise sales playbook — 4 pilots stuck in legal review.",
+      problemCategory: "B2B_Enterprise",
+    },
+    {
+      name: "NexusERP",
+      sector: "SaaS",
+      stage: "Growth",
+      founderName: "David Koh",
+      founderEmail: "david@nexuserp.my",
+      roadblock:
+        "Expand from SME to mid-market ERP deals — need GTM structure and enterprise champion mapping.",
+      problemCategory: "B2B_Enterprise",
+    },
+  ];
+
+  for (const p of pipelineStartups) {
+    const exists = await prisma.ecosystemProject.findFirst({ where: { name: p.name } });
+    if (exists) continue;
+
+    const project = await prisma.ecosystemProject.create({
+      data: {
+        name: p.name,
+        state: "In_Program",
+        sector: p.sector,
+        stage: p.stage,
+        country: "Malaysia",
+        founderName: p.founderName,
+        founderEmail: p.founderEmail,
+        metricsHistory: JSON.stringify({ mrr: 8000, runwayMonths: 9 }),
+        passportSnapshot: JSON.stringify({
+          intake: { sector: p.sector, stage: p.stage },
+          awaitingMentorMatch: true,
+        }),
+      },
+    });
+
+    await prisma.roadblockRequest.create({
+      data: {
+        ecosystemProjectId: project.id,
+        roadblock: p.roadblock,
+        problemCategory: p.problemCategory,
+        stage: p.stage,
+        sector: p.sector,
+        status: "open",
+      },
+    });
+  }
 }
