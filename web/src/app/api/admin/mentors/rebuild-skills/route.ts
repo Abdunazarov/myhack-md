@@ -6,7 +6,7 @@ import { rebuildAllMentorSkillMatrices } from "@/server/services/mentor/buildSki
 
 export { OPTIONS };
 
-/** Recomputes all mentor dynamic skill matrices from 2024 historical outcomes. */
+/** Recomputes all mentor dynamic skill matrices from 2025 historical outcomes. */
 export async function POST(request: Request) {
   const auth = await requireAuthWithRoles(request, [UserRole.Admin]);
   if (auth instanceof Response) return auth;

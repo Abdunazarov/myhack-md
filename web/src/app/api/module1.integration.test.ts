@@ -35,17 +35,17 @@ describe("Module 1 — Smart Intake & Auto-Routing", () => {
       const body = await parseJson<{ programmes: { slug: string }[] }>(res);
       expect(res.status).toBe(200);
       expect(body.programmes.length).toBeGreaterThanOrEqual(5);
-      expect(body.programmes.map((p) => p.slug)).toContain("cradle-grant");
+      expect(body.programmes.map((p) => p.slug)).toContain("grant-track");
       expect(body.programmes.map((p) => p.slug)).toContain("mystartup-pre-accelerator");
     });
 
     it("GET /api/programmes/:slug includes eligibility rules", async () => {
       const res = await programmeBySlugGET(new Request("http://localhost"), {
-        params: Promise.resolve({ slug: "cradle-grant" }),
+        params: Promise.resolve({ slug: "grant-track" }),
       });
       const body = await parseJson<{ programme: { slug: string; rules: unknown[] } }>(res);
       expect(res.status).toBe(200);
-      expect(body.programme.slug).toBe("cradle-grant");
+      expect(body.programme.slug).toBe("grant-track");
       expect(body.programme.rules.length).toBeGreaterThan(0);
     });
   });
@@ -62,12 +62,12 @@ describe("Module 1 — Smart Intake & Auto-Routing", () => {
     });
 
     it("GET /api/auth/me returns user when token valid", async () => {
-      const token = await loginAs("admin@cradle.com");
+      const token = await loginAs("admin@linkrouter.my");
       const res = await authMeGET(jsonAuth("http://localhost/api/auth/me", token));
       const body = await parseJson<{ user: { role: string; email: string } }>(res);
       expect(res.status).toBe(200);
       expect(body.user.role).toBe("Admin");
-      expect(body.user.email).toBe("admin@cradle.com");
+      expect(body.user.email).toBe("admin@linkrouter.my");
     });
 
     it("GET /api/auth/me returns 401 without token", async () => {
@@ -124,7 +124,7 @@ describe("Module 1 — Smart Intake & Auto-Routing", () => {
     });
 
     it("idea-stage application routes away from grant (Auto_Routed)", async () => {
-      const token = await loginAs("admin@cradle.com");
+      const token = await loginAs("admin@linkrouter.my");
       const res = await applicationsPOST(
         jsonAuth("http://localhost/api/applications", token, {
           method: "POST",
@@ -193,7 +193,7 @@ describe("Module 1 — Smart Intake & Auto-Routing", () => {
     });
 
     it("POST /api/applications/:id/audit re-runs audit on demand", async () => {
-      const token = await loginAs("admin@cradle.com");
+      const token = await loginAs("admin@linkrouter.my");
       const app = await prisma.application.findFirst({
         where: { ecosystemProject: { name: "PayFlow MY" } },
       });
@@ -227,7 +227,7 @@ describe("Module 1 — Smart Intake & Auto-Routing", () => {
 
   describe("admin intake pipeline", () => {
     it("GET /api/admin/dashboard returns pipeline metrics", async () => {
-      const token = await loginAs("admin@cradle.com");
+      const token = await loginAs("admin@linkrouter.my");
       const res = await adminDashboardGET(
         jsonAuth("http://localhost/api/admin/dashboard", token),
       );
@@ -241,7 +241,7 @@ describe("Module 1 — Smart Intake & Auto-Routing", () => {
     });
 
     it("GET /api/admin/intake returns full application list", async () => {
-      const token = await loginAs("admin@cradle.com");
+      const token = await loginAs("admin@linkrouter.my");
       const res = await adminIntakeGET(jsonAuth("http://localhost/api/admin/intake", token));
       const body = await parseJson<{ applications: { ecosystemProject: { name: string } }[] }>(
         res,
@@ -251,7 +251,7 @@ describe("Module 1 — Smart Intake & Auto-Routing", () => {
     });
 
     it("GET /api/admin/intake/:id returns application and programmes for review", async () => {
-      const token = await loginAs("admin@cradle.com");
+      const token = await loginAs("admin@linkrouter.my");
       const app = await prisma.application.findFirst({
         where: { ecosystemProject: { name: "PayFlow MY" } },
       });
@@ -271,7 +271,7 @@ describe("Module 1 — Smart Intake & Auto-Routing", () => {
     });
 
     it("POST /api/admin/intake/:id/decision confirm_route enrolls project In_Program", async () => {
-      const token = await loginAs("admin@cradle.com");
+      const token = await loginAs("admin@linkrouter.my");
       const app = await prisma.application.findFirst({
         where: { ecosystemProject: { name: "HealthSync" } },
         include: { ecosystemProject: true },

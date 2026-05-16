@@ -9,10 +9,15 @@ import {
 } from "react";
 import { fetchDemoUsers, login as apiLogin } from "../api/client";
 import type { AuthUser, DemoUser } from "../api/types";
+import {
+  AUTH_TOKEN_KEY,
+  AUTH_USER_KEY,
+  AUTH_ENTITY_KEY,
+} from "../lib/authStorage";
 
-const TOKEN_KEY = "cradle_auth_token";
-const USER_KEY = "cradle_auth_user";
-const ENTITY_KEY = "cradle_active_entity";
+const TOKEN_KEY = AUTH_TOKEN_KEY;
+const USER_KEY = AUTH_USER_KEY;
+const ENTITY_KEY = AUTH_ENTITY_KEY;
 
 /** UI-facing persona (maps to backend Founder / Mentor). */
 export type AppEntity = "startup" | "mentor";
@@ -82,8 +87,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         { email: string; password: string }
       > = {
         Founder: { email: "founder@demo.com", password: "demo123" },
-        Mentor: { email: "mentor@cradle.com", password: "demo123" },
-        Admin: { email: "admin@cradle.com", password: "demo123" },
+        Mentor: { email: "mentor@linkrouter.my", password: "demo123" },
+        Admin: { email: "admin@linkrouter.my", password: "demo123" },
       };
       const match = demoUsers.find((u) => u.role === role) ?? fallbacks[role];
       await loginAs(match.email, match.password);

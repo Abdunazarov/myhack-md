@@ -28,7 +28,7 @@ describe("Full API coverage & reliability", () => {
       const res = await rootGET();
       const body = await parseJson<{ service: string; endpoints: Record<string, string> }>(res);
       expect(res.status).toBe(200);
-      expect(body.service).toContain("Cradle LinkRouter");
+      expect(body.service).toContain("LinkRouter");
       expect(body.endpoints.authLogin).toBeTruthy();
       expect(body.endpoints.founderRoadblock).toBeTruthy();
     });
@@ -70,7 +70,7 @@ describe("Full API coverage & reliability", () => {
     });
 
     it("GET /api/applications as mentor returns in-program and mentor-track apps", async () => {
-      const token = await loginAs("mentor@cradle.com");
+      const token = await loginAs("mentor@linkrouter.my");
       const res = await applicationsGET(
         jsonAuth("http://localhost/api/applications", token),
       );
@@ -80,7 +80,7 @@ describe("Full API coverage & reliability", () => {
     });
 
     it("GET /api/applications as admin returns all applications", async () => {
-      const token = await loginAs("admin@cradle.com");
+      const token = await loginAs("admin@linkrouter.my");
       const res = await applicationsGET(
         jsonAuth("http://localhost/api/applications", token),
       );
@@ -119,7 +119,7 @@ describe("Full API coverage & reliability", () => {
 
   describe("multipart application submit", () => {
     it("POST /api/applications accepts multipart with financial CSV", async () => {
-      const token = await loginAs("admin@cradle.com");
+      const token = await loginAs("admin@linkrouter.my");
       const payload = {
         ...ideaStageApplicationPayload,
         founderEmail: "csv-founder@test.com",
@@ -163,7 +163,7 @@ describe("Full API coverage & reliability", () => {
       decision: string,
       extra?: Record<string, unknown>,
     ) {
-      const token = await loginAs("admin@cradle.com");
+      const token = await loginAs("admin@linkrouter.my");
       return adminDecisionPOST(
         jsonAuth(`http://localhost/api/admin/intake/${applicationId}/decision`, token, {
           method: "POST",
@@ -205,7 +205,7 @@ describe("Full API coverage & reliability", () => {
               founderEmail: "reject@test.com",
             },
           },
-          targetProgramme: { connect: { slug: "cradle-grant" } },
+          targetProgramme: { connect: { slug: "grant-track" } },
           status: "Routed",
           normalizedApplication: "{}",
         },
@@ -232,7 +232,7 @@ describe("Full API coverage & reliability", () => {
     it("returns 400 on invalid decision body", async () => {
       const app = await prisma.application.findFirst();
       expect(app).toBeTruthy();
-      const token = await loginAs("admin@cradle.com");
+      const token = await loginAs("admin@linkrouter.my");
       const res = await adminDecisionPOST(
         jsonAuth(`http://localhost/api/admin/intake/${app!.id}/decision`, token, {
           method: "POST",
@@ -246,20 +246,20 @@ describe("Full API coverage & reliability", () => {
 
   describe("investor dashboard (Module 3 preview)", () => {
     it("GET /api/investor/dashboard returns graduated portfolio with verified passports", async () => {
-      const token = await loginAs("investor@cradle.com");
+      const token = await loginAs("investor@linkrouter.my");
       const res = await investorDashboardGET(
         jsonAuth("http://localhost/api/investor/dashboard", token),
       );
       const body = await parseJson<{
         module: string;
-        portfolio: { name: string; verifiedPassport: { cradleVerified?: boolean } }[];
+        portfolio: { name: string; verifiedPassport: { platformVerified?: boolean } }[];
         stats: { graduatedStartups: number };
       }>(res);
       expect(res.status).toBe(200);
       expect(body.module).toBe("verified-handoff");
       expect(body.stats.graduatedStartups).toBeGreaterThanOrEqual(2);
       expect(body.portfolio.some((p) => p.name === "NovaAnalytics")).toBe(true);
-      expect(body.portfolio[0].verifiedPassport.cradleVerified).toBe(true);
+      expect(body.portfolio[0].verifiedPassport.platformVerified).toBe(true);
     });
 
     it("founder cannot access investor dashboard", async () => {
@@ -336,7 +336,7 @@ describe("Full API coverage & reliability", () => {
         },
       });
 
-      const token = await loginAs("admin@cradle.com");
+      const token = await loginAs("admin@linkrouter.my");
       for (let i = 0; i < 3; i++) {
         await linkageFeedbackPOST(
           jsonAuth(`http://localhost/api/linkages/${linkage.id}/feedback`, token, {
@@ -376,7 +376,7 @@ describe("Full API coverage & reliability", () => {
     });
 
     it("mentor cannot access admin dashboard", async () => {
-      const token = await loginAs("mentor@cradle.com");
+      const token = await loginAs("mentor@linkrouter.my");
       const { GET: adminDashboardGET } = await import("./admin/dashboard/route");
       const res = await adminDashboardGET(
         jsonAuth("http://localhost/api/admin/dashboard", token),
@@ -402,7 +402,7 @@ describe("Full API coverage & reliability", () => {
 
   describe("demo reset (runs last — re-seeds database)", () => {
     it("POST /api/admin/demo/reset re-seeds demo data when enabled", async () => {
-      const token = await loginAs("admin@cradle.com");
+      const token = await loginAs("admin@linkrouter.my");
       const res = await demoResetPOST(
         jsonAuth("http://localhost/api/admin/demo/reset", token, { method: "POST" }),
       );

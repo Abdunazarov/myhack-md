@@ -85,15 +85,15 @@ export function buildMentorTrackRecord(
   const sectorNames = strongSectors.slice(0, 3).map((s) => s.sector);
   const headline =
     sectorNames.length > 0
-      ? `You excelled on ${sectorNames.join(", ")} projects in 2024`
-      : "Your 2024 cohort outcomes inform smarter matching";
+      ? `You excelled on ${sectorNames.join(", ")} projects in 2025`
+      : "Your 2025 cohort outcomes inform smarter matching";
 
   const totalMentored = outcomes.length;
   const totalWins = outcomes.filter((o) => o.outcome === "Success").length;
   const overallRate = totalMentored ? Math.round((totalWins / totalMentored) * 100) : 0;
   const subheadline =
     totalMentored > 0
-      ? `${overallRate}% overall success across ${totalMentored} startups in 2024 — validated skills carry forward to new matches.`
+      ? `${overallRate}% overall success across ${totalMentored} startups in 2025 — validated skills carry forward to new matches.`
       : "Historical mentorship data powers explainable recommendations.";
 
   const provenSkills = Object.entries(skillMatrix)
@@ -176,7 +176,7 @@ function scoreProjectForMentor(
     `Recommended because ${project.name} needs ${problemTags.map((t) => t.replace(/_/g, " ")).join(", ")}.`,
     matchedCriteria.length
       ? `Matches your track record: ${matchedCriteria.slice(0, 2).join("; ")}.`
-      : "Fits your dynamic skill profile from 2024 outcomes.",
+      : "Fits your dynamic skill profile from 2025 outcomes.",
     similarPastWin
       ? `Similar win: ${similarPastWin.startupName} (${similarPastWin.sector}, ${similarPastWin.cohortYear}).`
       : "",

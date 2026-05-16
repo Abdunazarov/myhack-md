@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/db";
 
 const PROGRAMME_SLUGS_ENROLL = [
-  "cradle-grant",
+  "grant-track",
   "mystartup-pre-accelerator",
   "mentor-readiness",
   "financial-model-repair",

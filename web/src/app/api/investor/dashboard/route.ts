@@ -18,7 +18,7 @@ export async function GET(request: Request) {
     module: "verified-handoff",
     status: "preview",
     message:
-      "Module 3 investor passport is preview-only for the hackathon. Graduated startups include verified Cradle metrics.",
+      "Module 3 investor passport is preview-only for the hackathon. Graduated startups include verified platform metrics.",
     investor: { name: auth.name, email: auth.email },
     stats: {
       graduatedStartups: graduated.length,
@@ -41,7 +41,7 @@ export async function GET(request: Request) {
         founderName: p.founderName,
         state: p.state,
         verifiedPassport: passport,
-        cradleVerified: true,
+        platformVerified: true,
       };
     }),
   });

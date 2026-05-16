@@ -7,8 +7,8 @@ import type { ProgrammeEligibilityResult, ScoreBreakdown } from "../intake/intak
 const programmes = [
   {
     id: "grant",
-    slug: "cradle-grant",
-    name: "Cradle Grant Track",
+    slug: "grant-track",
+    name: "Grant Track",
     type: ProgrammeType.Grant,
     description: "",
     priority: 100,
@@ -64,8 +64,8 @@ const strongScore: ScoreBreakdown = {
 const eligibility: ProgrammeEligibilityResult[] = [
   {
     programmeId: "grant",
-    programmeSlug: "cradle-grant",
-    programmeName: "Cradle Grant Track",
+    programmeSlug: "grant-track",
+    programmeName: "Grant Track",
     hardPass: true,
     softScore: 100,
     rules: [],
@@ -77,7 +77,7 @@ describe("programme routing", () => {
     const result = selectBestProgramme(baseApplication, programmes, eligibility, strongScore);
 
     expect(result.decisionType).toBe("Grant_Eligible");
-    expect(result.recommendedProgrammeSlug).toBe("cradle-grant");
+    expect(result.recommendedProgrammeSlug).toBe("grant-track");
   });
 
   it("routes idea-stage applications to pre-accelerator", () => {

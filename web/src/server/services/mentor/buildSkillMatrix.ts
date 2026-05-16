@@ -10,7 +10,7 @@ function parseTags(json: string): string[] {
 }
 
 /**
- * Builds dynamic skill matrix from 2024 cohort historical outcomes (Feature 2.1).
+ * Builds dynamic skill matrix from 2025 cohort historical outcomes (Feature 2.1).
  * Success outcomes boost tags; Fail outcomes penalize tags mentioned in feedback.
  */
 export function buildSkillMatrixFromOutcomes(
@@ -56,7 +56,7 @@ export function buildSkillMatrixFromOutcomes(
   return {
     matrix,
     summary: {
-      cohortYear: 2024,
+      cohortYear: 2025,
       startupsMentored: outcomes.length,
       successRate: outcomes.length ? Math.round((successCount / outcomes.length) * 100) : 0,
       successCount,

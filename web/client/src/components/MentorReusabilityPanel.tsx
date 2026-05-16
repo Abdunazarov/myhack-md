@@ -26,18 +26,14 @@ export default function MentorReusabilityPanel({ dashboard }: { dashboard: Mento
           </div>
           <div>
             <h2 className="text-xl font-bold text-on-background tracking-tight">
-              Reusable expertise
+              Track record
             </h2>
-            <p className="text-sm text-on-surface-variant mt-2 leading-relaxed">
-              Past cohort results drive who you should mentor next — not starting from zero each
-              batch.
-            </p>
+
             {trackRecord && (
               <>
-                <p className="text-lg font-semibold text-primary mt-4 leading-snug">
+                <p className="text-base font-semibold text-primary mt-3 line-clamp-2">
                   {trackRecord.headline}
                 </p>
-                <p className="text-sm text-on-surface-variant mt-1.5">{trackRecord.subheadline}</p>
               </>
             )}
           </div>
@@ -50,12 +46,9 @@ export default function MentorReusabilityPanel({ dashboard }: { dashboard: Mento
             <div className="max-w-2xl">
               <h3 className="text-xl font-semibold flex items-center gap-2 text-on-background">
                 <UserPlus className="text-primary shrink-0" size={22} />
-                Suggested assignments for you
+                Suggested matches
               </h3>
-              <p className="text-sm text-on-surface-variant mt-2 leading-relaxed">
-                Since you did well on similar projects, LinkRouter recommends these startups for your
-                cohort — explainable match from historical outcomes.
-              </p>
+
             </div>
 
             <StaggerGrid className="grid grid-cols-1 lg:grid-cols-2 gap-5">

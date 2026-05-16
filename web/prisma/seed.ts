@@ -8,10 +8,10 @@ const DEMO_PASSWORD = "demo123";
 async function seedUsers() {
   const hash = await bcrypt.hash(DEMO_PASSWORD, 10);
   const users = [
-    { email: "admin@cradle.com", name: "Cradle Admin", role: UserRole.Admin },
+    { email: "admin@linkrouter.my", name: "Platform Admin", role: UserRole.Admin },
     { email: "founder@demo.com", name: "Demo Founder", role: UserRole.Founder },
-    { email: "mentor@cradle.com", name: "Demo Mentor", role: UserRole.Mentor },
-    { email: "investor@cradle.com", name: "Demo Investor", role: UserRole.Investor },
+    { email: "mentor@linkrouter.my", name: "Demo Mentor", role: UserRole.Mentor },
+    { email: "investor@linkrouter.my", name: "Demo Investor", role: UserRole.Investor },
   ];
   for (const u of users) {
     await prisma.user.create({
@@ -96,8 +96,8 @@ export async function seedDatabase() {
   const programmes = await Promise.all([
     prisma.programme.create({
       data: {
-        slug: "cradle-grant",
-        name: "Cradle Grant Track",
+        slug: "grant-track",
+        name: "Grant Track",
         type: ProgrammeType.Grant,
         description: "Grant track for incorporated Malaysia startups at MVP stage or later.",
         priority: 100,
@@ -141,7 +141,7 @@ export async function seedDatabase() {
     }),
   ]);
 
-  const grant = programmes.find((p) => p.slug === "cradle-grant")!;
+  const grant = programmes.find((p) => p.slug === "grant-track")!;
   const preAccel = programmes.find((p) => p.slug === "mystartup-pre-accelerator")!;
 
   const grantRules = [
@@ -188,7 +188,7 @@ export async function seedDatabase() {
             median: m.median,
             p75: m.p75,
             successfulCohortCount: 24,
-            sourceCohortYear: 2024,
+            sourceCohortYear: 2025,
           },
         });
       }
@@ -331,9 +331,9 @@ export async function seedDatabase() {
         founderEmail: "raj@novaanalytics.my",
         metricsHistory: JSON.stringify({ mrr: 45000, cac: 110, runwayMonths: 14 }),
         passportSnapshot: JSON.stringify({
-          cradleVerified: true,
+          platformVerified: true,
           graduatedAt: "2025-11-01",
-          programmesCompleted: ["Cradle Grant Track", "Mentor Readiness Track"],
+          programmesCompleted: ["Grant Track", "Mentor Readiness Track"],
           readinessAtGraduation: 82,
           highlights: ["3x MRR growth during programme", "Expanded to Singapore pilot"],
           investorSummary: "B2B analytics platform for retail chains with strong unit economics.",
@@ -349,7 +349,7 @@ export async function seedDatabase() {
         founderEmail: "siti@farmlink.my",
         metricsHistory: JSON.stringify({ mrr: 22000, cac: 75, runwayMonths: 10 }),
         passportSnapshot: JSON.stringify({
-          cradleVerified: true,
+          platformVerified: true,
           graduatedAt: "2025-09-15",
           programmesCompleted: ["MYStartup Pre-Accelerator", "VC Readiness Track"],
           readinessAtGraduation: 74,

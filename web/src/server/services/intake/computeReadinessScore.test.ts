@@ -5,8 +5,8 @@ import type { ProgrammeEligibilityResult } from "./intakeTypes";
 
 const grantEligibilityPass: ProgrammeEligibilityResult = {
   programmeId: "grant-1",
-  programmeSlug: "cradle-grant",
-  programmeName: "Cradle Grant",
+  programmeSlug: "grant-track",
+  programmeName: "Grant Track",
   hardPass: true,
   softScore: 80,
   rules: [

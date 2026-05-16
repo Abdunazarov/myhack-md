@@ -20,13 +20,13 @@ type MentorSeed = {
 const MENTORS: MentorSeed[] = [
   {
     name: "Dr. Sarah Chen",
-    email: "sarah.chen@cradle.my",
+    email: "sarah.chen@linkrouter.my",
     title: "Enterprise B2B & GTM Advisor",
-    userEmail: "mentor@cradle.com",
+    userEmail: "mentor@linkrouter.my",
     capacity: 6,
     outcomes: [
       {
-        startupName: "FleetOps 2024",
+        startupName: "FleetOps 2025",
         sector: "SaaS",
         stage: "Revenue",
         problemTags: ["B2B_Enterprise", "Go_To_Market"],
@@ -62,12 +62,12 @@ const MENTORS: MentorSeed[] = [
   },
   {
     name: "Ahmad Rizal",
-    email: "ahmad.rizal@cradle.my",
+    email: "ahmad.rizal@linkrouter.my",
     title: "Fintech & Compliance Mentor",
     capacity: 5,
     outcomes: [
       {
-        startupName: "PayBridge 2024",
+        startupName: "PayBridge 2025",
         sector: "Fintech",
         stage: "Revenue",
         problemTags: ["Fintech_Compliance", "B2B_Enterprise"],
@@ -94,7 +94,7 @@ const MENTORS: MentorSeed[] = [
   },
   {
     name: "Priya Nair",
-    email: "priya.nair@cradle.my",
+    email: "priya.nair@linkrouter.my",
     title: "Growth Marketing & CAC Optimization",
     capacity: 7,
     outcomes: [
@@ -134,7 +134,7 @@ const MENTORS: MentorSeed[] = [
   },
   {
     name: "James Ooi",
-    email: "james.ooi@cradle.my",
+    email: "james.ooi@linkrouter.my",
     title: "Financial Modeling & Fundraising",
     capacity: 5,
     outcomes: [
@@ -166,7 +166,7 @@ const MENTORS: MentorSeed[] = [
   },
   {
     name: "Mei Ling Tan",
-    email: "mei.ling@cradle.my",
+    email: "mei.ling@linkrouter.my",
     title: "Product-Market Fit & MVP Coach",
     capacity: 6,
     outcomes: [
@@ -205,7 +205,7 @@ export async function seedModule2(prisma: PrismaClient, payFlowProjectId?: strin
   await prisma.mentorNode.deleteMany();
 
   const users = await prisma.user.findMany();
-  const mentorUser = users.find((u) => u.email === "mentor@cradle.com");
+  const mentorUser = users.find((u) => u.email === "mentor@linkrouter.my");
 
   const createdMentors = [];
   for (const m of MENTORS) {
@@ -217,7 +217,7 @@ export async function seedModule2(prisma: PrismaClient, payFlowProjectId?: strin
         name: m.name,
         email: m.email,
         title: m.title,
-        userId: userId ?? (m.userEmail === "mentor@cradle.com" ? mentorUser?.id : null),
+        userId: userId ?? (m.userEmail === "mentor@linkrouter.my" ? mentorUser?.id : null),
         availabilityCapacity: m.capacity,
         dynamicSkillMatrix: "{}",
         outcomeSummary: "{}",
@@ -234,7 +234,7 @@ export async function seedModule2(prisma: PrismaClient, payFlowProjectId?: strin
           problemTags: JSON.stringify(o.problemTags),
           outcome: o.outcome,
           feedbackLog: o.feedbackLog,
-          cohortYear: 2024,
+          cohortYear: 2025,
         },
       });
     }
@@ -255,7 +255,7 @@ export async function seedModule2(prisma: PrismaClient, payFlowProjectId?: strin
   }
 
   if (payFlowProjectId) {
-    const sarah = createdMentors.find((m) => m.email === "sarah.chen@cradle.my")!;
+    const sarah = createdMentors.find((m) => m.email === "sarah.chen@linkrouter.my")!;
     await prisma.linkageEntity.create({
       data: {
         ecosystemProjectId: payFlowProjectId,
@@ -266,7 +266,7 @@ export async function seedModule2(prisma: PrismaClient, payFlowProjectId?: strin
         healthScore: 82,
         matchScore: 0.91,
         matchExplanation:
-          "Matched Sarah Chen for B2B Enterprise and GTM. Strongest fit: B2B Enterprise (92% historical success). Historical proof: mentored FleetOps 2024 to successful outcome in 2024.",
+          "Matched Sarah Chen for B2B Enterprise and GTM. Strongest fit: B2B Enterprise (92% historical success). Historical proof: mentored FleetOps 2025 to successful outcome in 2025.",
         feedbackLogs: JSON.stringify([
           {
             note: "Intro call completed — pilot expansion plan drafted.",
@@ -279,7 +279,7 @@ export async function seedModule2(prisma: PrismaClient, payFlowProjectId?: strin
       },
     });
 
-    const atRisk = createdMentors.find((m) => m.email === "priya.nair@cradle.my")!;
+    const atRisk = createdMentors.find((m) => m.email === "priya.nair@linkrouter.my")!;
     const greenRoute = await prisma.ecosystemProject.findFirst({
       where: { founderEmail: "founder@demo.com" },
     });

@@ -7,6 +7,7 @@ import MentorReusabilityPanel from "../components/MentorReusabilityPanel";
 import { PageShell, PageHeader, FadeIn, StaggerGrid, StaggerItem } from "../components/layout/PageShell";
 import { cardHover } from "../components/layout/motion";
 import StatCard from "../components/ui/StatCard";
+import { AUTH_TOKEN_KEY } from "../lib/authStorage";
 
 function HealthSparkline({ values }: { values: number[] }) {
   if (!values.length) return null;
@@ -16,7 +17,7 @@ function HealthSparkline({ values }: { values: number[] }) {
   return (
     <div className="mt-3">
       <p className="text-[10px] text-on-surface-variant uppercase mb-1 tracking-wide">
-        Health trend
+        Trend
       </p>
       <div className="flex items-end gap-0.5 h-8">
         {values.map((v, i) => (
@@ -47,7 +48,7 @@ export default function MentorDashboardView() {
         let authToken = token;
         if (!authToken) {
           await loginAsRole("Mentor");
-          authToken = localStorage.getItem("cradle_auth_token");
+          authToken = localStorage.getItem(AUTH_TOKEN_KEY);
         }
         if (!authToken) throw new Error("Not signed in");
         const data = await getMentorDashboard(authToken);
@@ -103,36 +104,29 @@ export default function MentorDashboardView() {
   return (
     <PageShell className="space-y-10">
       <PageHeader
-        title="Mentor cohort"
-        description={
-          mentor?.name
-            ? `Signed in as ${mentor.name}${mentor?.title ? ` · ${mentor.title}` : ""}`
-            : "Your assigned startups and intervention queue"
-        }
+        title="Cohort"
+        description={mentor?.name ?? undefined}
       />
 
       <StaggerGrid className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
         <StatCard
-          label="Active startups"
+          label="Active"
           value={activeCount}
           icon={Users}
           accent="primary"
-          hint="Currently in your cohort"
-        />
+          />
         <StatCard
-          label="Intervention queue"
+          label="Needs attention"
           value={interventionCount}
           icon={AlertTriangle}
           accent="alert"
-          hint="Startups needing support"
-        />
+          />
         {capacityPct != null && stats && (
           <StatCard
             label="Capacity"
             value={`${stats.capacityUsed}/${stats.capacity}`}
             icon={Gauge}
             accent="secondary"
-            hint={`${capacityPct}% utilised`}
           />
         )}
       </StaggerGrid>
@@ -148,7 +142,7 @@ export default function MentorDashboardView() {
           <section className="space-y-4">
             <h2 className="text-lg font-semibold flex items-center gap-2 pb-2 border-b border-outline-variant">
               <AlertTriangle className="text-error shrink-0" size={20} />
-              Intervention queue
+              Needs attention
               <span className="text-sm font-normal text-on-surface-variant">
                 ({interventions.length})
               </span>
@@ -158,7 +152,9 @@ export default function MentorDashboardView() {
                 <StaggerItem key={item.linkageId}>
                   <div className={`rounded-2xl border border-error/35 bg-error-container/10 p-5 h-full ${cardHover}`}>
                     <h3 className="font-semibold text-lg">{item.startup}</h3>
-                    <p className="text-sm text-on-surface-variant mt-2 line-clamp-2">{item.goal}</p>
+                    {item.goal && (
+                      <p className="text-sm text-on-surface-variant mt-2 line-clamp-1">{item.goal}</p>
+                    )}
                     <p className="text-sm font-semibold text-error mt-3">
                       Health {item.healthScore != null ? `${Math.round(item.healthScore)}%` : "—"}
                     </p>
@@ -174,7 +170,7 @@ export default function MentorDashboardView() {
         <section className="space-y-4">
           <h2 className="text-lg font-semibold flex items-center gap-2 pb-2 border-b border-outline-variant">
             <Target size={20} className="text-primary shrink-0" />
-            Active startups
+            Cohort
             <span className="text-sm font-normal text-on-surface-variant">({assigned.length})</span>
           </h2>
           <StaggerGrid className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -189,7 +185,7 @@ export default function MentorDashboardView() {
                       </p>
                       {s.matchScore != null && (
                         <p className="text-xs text-primary font-medium mt-1">
-                          {Math.round(s.matchScore * 100)}% match confidence
+                          {Math.round(s.matchScore * 100)}% match
                         </p>
                       )}
                     </div>
@@ -209,7 +205,7 @@ export default function MentorDashboardView() {
                     </div>
                   </div>
                   {s.goal && (
-                    <p className="text-sm text-on-surface-variant mt-3 leading-relaxed">{s.goal}</p>
+                    <p className="text-sm text-on-surface-variant mt-2 line-clamp-1">{s.goal}</p>
                   )}
                   {s.healthHistory && s.healthHistory.length > 0 && (
                     <HealthSparkline values={s.healthHistory} />
@@ -217,7 +213,7 @@ export default function MentorDashboardView() {
                   {s.lastActivityAt && (
                     <p className="text-[10px] text-on-surface-variant mt-3 flex items-center gap-1">
                       <Calendar size={12} />
-                      Last activity {new Date(s.lastActivityAt).toLocaleDateString("en-MY")}
+                      {new Date(s.lastActivityAt).toLocaleDateString("en-MY", { month: "short", day: "numeric" })}
                     </p>
                   )}
                 </div>

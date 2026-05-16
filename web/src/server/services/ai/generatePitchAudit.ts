@@ -52,7 +52,7 @@ function fallbackAudit(
     riskFlags,
     aiSummary:
       "Rule-based audit (Gemini unavailable). Eligibility and benchmark comparison were completed deterministically.",
-    founderReport: `${app.companyName} has been analyzed. Readiness is based on deterministic eligibility rules and 2024 cohort benchmarks. ${
+    founderReport: `${app.companyName} has been analyzed. Readiness is based on deterministic eligibility rules and 2025 cohort benchmarks. ${
       riskFlags.length ? "Review the flagged risks before resubmission." : "No critical risks were detected."
     }`,
     aiFallback: true,
@@ -67,7 +67,7 @@ export async function generatePitchAudit(
   const model = getGeminiModel();
   if (!model) return fallbackAudit(app, benchmarkDeltas, missingInformation);
 
-  const prompt = `You are an accelerator intake analyst for Cradle Malaysia.
+  const prompt = `You are an accelerator intake analyst for Malaysia's startup ecosystem.
 Analyze this startup application. Use ONLY the provided data and benchmark deltas. Do not invent numbers.
 
 Startup JSON:

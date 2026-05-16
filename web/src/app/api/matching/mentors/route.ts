@@ -4,7 +4,7 @@ import { parseSkillMatrix } from "@/server/services/mentor/skillTags";
 
 export { OPTIONS };
 
-/** Public catalog of mentor skill matrices (2024 cohort intelligence). */
+/** Public catalog of mentor skill matrices (2025 cohort intelligence). */
 export async function GET() {
   const mentors = await prisma.mentorNode.findMany({
     where: { active: true },

@@ -98,7 +98,7 @@ export default function ProjectCard({ project, onViewResults }: ProjectCardProps
             )}
             {app && (
               <Button onClick={() => onViewResults(app.id)} className="whitespace-nowrap">
-                View results
+                Results
                 <ChevronRight size={18} />
               </Button>
             )}

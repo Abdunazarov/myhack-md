@@ -117,7 +117,7 @@ function scoreMentor(
   ];
   if (winExample) {
     explanationParts.push(
-      `Historical proof: mentored ${winExample.startupName} (${JSON.parse(winExample.problemTags)[0] ?? "similar problem"}) to a successful outcome in 2024.`,
+      `Historical proof: mentored ${winExample.startupName} (${JSON.parse(winExample.problemTags)[0] ?? "similar problem"}) to a successful outcome in 2025.`,
     );
   }
   explanationParts.push(

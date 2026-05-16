@@ -55,31 +55,31 @@ export default function HomeView({
       <section className="relative overflow-hidden">
         <div className="mx-auto max-w-6xl px-gutter md:px-margin-desktop py-16 md:py-24">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-center">
-            <FadeIn className="min-w-0 w-full">
-              <div className="max-w-prose space-y-5">
+            <FadeIn className="min-w-0 w-full flex items-center justify-center lg:justify-start">
+              <div className="max-w-prose space-y-5 w-full">
                 <p className="text-xs font-semibold uppercase tracking-widest text-primary">
-                  Malaysia innovation ecosystem
+                  Malaysia
                 </p>
                 <h2 className="text-3xl md:text-4xl xl:text-5xl font-bold text-on-background tracking-tight leading-[1.15]">
                   {isStartup
-                    ? "Intelligent intake for your startup journey"
-                    : "Guide your cohort with data-driven mentorship"}
+                    ? "Apply. Get scored. Get routed."
+                    : "Your cohort, one view"}
                 </h2>
                 <p className="text-base md:text-lg text-on-surface-variant leading-relaxed">
                   {isStartup
-                    ? "AI pitch audit, benchmark comparison, and automatic programme routing — in one flow."
-                    : "Assigned startups, intervention priorities, and historical outcomes in one workspace."}
+                    ? "Pitch audit, benchmarks, and programme routing."
+                    : "Startups, priorities, and outcomes."}
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3 pt-1">
                   {isStartup ? (
                     <>
-                      <Button onClick={() => onNavigate("apply")}>Submit application</Button>
+                      <Button onClick={() => onNavigate("apply")}>Apply</Button>
                       <Button variant="secondary" onClick={() => onNavigate("founder-dashboard")}>
                         My dashboard
                       </Button>
                     </>
                   ) : (
-                    <Button onClick={() => onNavigate("mentor-dashboard")}>Open mentor cohort</Button>
+                    <Button onClick={() => onNavigate("mentor-dashboard")}>Open cohort</Button>
                   )}
                 </div>
               </div>
@@ -98,11 +98,7 @@ export default function HomeView({
             <h3 className="text-2xl font-semibold text-on-background">
               {isStartup ? "How it works" : "Your mentor workflow"}
             </h3>
-            <p className="text-base text-on-surface-variant mt-2">
-              {isStartup
-                ? "Three steps from application to the right programme"
-                : "Support startups from assignment through outcomes"}
-            </p>
+
           </FadeIn>
 
           <StaggerGrid className="grid grid-cols-1 md:grid-cols-3 gap-5">
@@ -111,19 +107,19 @@ export default function HomeView({
                 <WorkflowCard
                   icon={FileText}
                   title="Submit profile"
-                  description="Upload your deck and team details through a streamlined intake portal."
+                  description="Deck + team details."
                   iconClass="bg-primary-container text-primary"
                 />
                 <WorkflowCard
                   icon={Brain}
                   title="AI audit vs benchmarks"
-                  description="Automated analysis compares your metrics against successful cohort alumni."
+                  description="Vs cohort benchmarks."
                   iconClass="bg-secondary-container text-secondary"
                 />
                 <WorkflowCard
                   icon={Waypoints}
                   title="Scored & routed"
-                  description="Receive a readiness score and automatic matching to the ideal track."
+                  description="Score + programme match."
                   iconClass="bg-tertiary-container text-tertiary"
                 />
               </>
@@ -132,19 +128,19 @@ export default function HomeView({
                 <WorkflowCard
                   icon={Users}
                   title="Assigned startups"
-                  description="View active cohort members matched to your expertise and capacity."
+                  description="Your assigned startups."
                   iconClass="bg-primary-container text-primary"
                 />
                 <WorkflowCard
                   icon={Brain}
                   title="Intervention queue"
-                  description="Prioritize startups that need help based on health scores and roadblocks."
+                  description="By health score."
                   iconClass="bg-secondary-container text-secondary"
                 />
                 <WorkflowCard
                   icon={BadgeCheck}
-                  title="Track outcomes"
-                  description="Review historical wins to improve future matches and assignments."
+                  title="Outcomes"
+                  description="Past wins inform matches."
                   iconClass="bg-tertiary-container text-tertiary"
                 />
               </>
@@ -164,11 +160,7 @@ export default function HomeView({
                   </span>
                   <h3 className="text-2xl md:text-3xl font-bold mb-5">AI pitch audit</h3>
                   <ul className="space-y-3 text-sm text-on-surface-variant">
-                    {[
-                      "Automated risk identification",
-                      "Core strength analysis",
-                      "Vertical-specific benchmarking",
-                    ].map((item) => (
+                    {["Risk scan", "Strengths", "Benchmarks"].map((item) => (
                       <li key={item} className="flex items-center gap-2">
                         <CheckCircle2 className="text-primary shrink-0" size={18} />
                         {item}
@@ -181,7 +173,7 @@ export default function HomeView({
                   onClick={() => onNavigate("apply")}
                   className="mt-8 !px-0 text-primary"
                 >
-                  Start application <ArrowRight size={18} />
+                  Apply <ArrowRight size={18} />
                 </Button>
               </div>
 
@@ -189,7 +181,7 @@ export default function HomeView({
                 <div>
                   <h3 className="text-xl font-semibold mb-3">Ecosystem routing</h3>
                   <p className="text-sm opacity-80 mb-6 leading-relaxed">
-                    Match with the right support based on your score and business stage.
+                    Score-based programme match.
                   </p>
                   <div className="space-y-3">
                     {["Pre-Accelerator", "Mentor Readiness", "Direct Grant Track"].map((track) => (
@@ -212,7 +204,7 @@ export default function HomeView({
       <footer className="border-t border-outline-variant bg-surface-container-high">
         <div className="max-w-6xl mx-auto px-gutter md:px-margin-desktop py-6 text-center md:text-left">
           <span className="text-on-surface-variant text-sm">
-            © 2026 LinkRouter · Powered by ecosystem intelligence
+            © 2026 LinkRouter
           </span>
         </div>
       </footer>

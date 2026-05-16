@@ -1,4 +1,4 @@
-# Cradle LinkRouter — Module Scope
+# LinkRouter — Module Scope
 
 ## Current MVP Focus: Modules 1 & 2 (Backend Complete)
 

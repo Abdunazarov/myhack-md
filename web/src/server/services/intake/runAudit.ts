@@ -30,7 +30,7 @@ export async function runApplicationAudit(applicationId: string): Promise<AuditP
   const eligibilityResults = evaluateAllProgrammes(app, programmes);
   const benchmarkDeltas = compareToBenchmarks(app, benchmarks);
   const missingInformation = detectMissingInformation(app);
-  const grantEligibility = eligibilityResults.find((e) => e.programmeSlug === "cradle-grant");
+  const grantEligibility = eligibilityResults.find((e) => e.programmeSlug === "grant-track");
   const scoreBreakdown = computeReadinessScore(app, grantEligibility, benchmarkDeltas);
 
   const aiResult = await generatePitchAudit(app, benchmarkDeltas, missingInformation);
@@ -76,7 +76,7 @@ export async function runApplicationAudit(applicationId: string): Promise<AuditP
     },
   });
 
-  const grantProgramme = programmes.find((p) => p.slug === "cradle-grant");
+  const grantProgramme = programmes.find((p) => p.slug === "grant-track");
   await prisma.routingDecision.create({
     data: {
       applicationId,

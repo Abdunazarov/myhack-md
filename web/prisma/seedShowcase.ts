@@ -20,9 +20,9 @@ function buildShowcaseSpecs(
       companyName: "PayFlow MY",
       status: "Eligible",
       decisionType: "Grant_Eligible",
-      programmeSlug: "cradle-grant",
+      programmeSlug: "grant-track",
       explanation:
-        "Strong revenue traction and incorporated status meet Cradle Grant criteria. Recommended for grant committee review with priority scoring.",
+        "Strong revenue traction and incorporated status meet grant criteria. Recommended for grant committee review with priority scoring.",
       projectState: "In_Program",
       metricsHistory: {
         mrrHistory: [4200, 5800, 7200, 9100, 10500, 12000],
@@ -48,7 +48,7 @@ function buildShowcaseSpecs(
             p75: 25000,
             deltaPct: 50,
             status: "above",
-            message: "MRR is 50% above the 2024 Fintech Revenue cohort median.",
+            message: "MRR is 50% above the 2025 Fintech Revenue cohort median.",
           },
           {
             metricName: "cac",
@@ -85,7 +85,7 @@ function buildShowcaseSpecs(
           "RM12,000 MRR with 12 paying SME clients demonstrates repeatable B2B sales.",
           "Two enterprise pilots in progress signal upmarket expansion potential.",
           "Incorporated entity with 18 months operating history de-risks grant disbursement.",
-          "22% month-on-month revenue growth outpaces the 2024 fintech cohort median.",
+          "22% month-on-month revenue growth outpaces the 2025 fintech cohort median.",
         ],
         riskFlags: [
           {
@@ -104,9 +104,9 @@ function buildShowcaseSpecs(
         ],
         missingInformation: [],
         aiSummary:
-          "PayFlow MY is a strong grant candidate with verified B2B revenue, incorporated status, and sector-fit for Cradle's fintech track. Primary watchpoint is runway length relative to burn.",
+          "PayFlow MY is a strong grant candidate with verified B2B revenue, incorporated status, and sector-fit for program's fintech track. Primary watchpoint is runway length relative to burn.",
         founderReport:
-          "PayFlow MY scores 84/100 on readiness. Your B2B payment reconciliation product shows clear commercial validation with RM12k MRR and active enterprise pilots. You meet core Cradle Grant eligibility criteria. Before final submission, prepare a runway extension narrative and pilot diversification plan — these strengthen the committee review.",
+          "PayFlow MY scores 84/100 on readiness. Your B2B payment reconciliation product shows clear commercial validation with RM12k MRR and active enterprise pilots. You meet core grant eligibility criteria. Before final submission, prepare a runway extension narrative and pilot diversification plan — these strengthen the committee review.",
         aiFallback: false,
         modelUsed: "seed-showcase",
       },
@@ -178,7 +178,7 @@ function buildShowcaseSpecs(
             severity: "high",
             code: "not_incorporated",
             message:
-              "Company is not yet incorporated — required before Cradle Grant but acceptable for Pre-Accelerator entry.",
+              "Company is not yet incorporated — required before grant but acceptable for Pre-Accelerator entry.",
           },
           {
             severity: "medium",
@@ -260,7 +260,7 @@ function buildShowcaseSpecs(
         strengths: [
           "5 clinic pilots with 2 converted to paid plans — 40% pilot-to-paid conversion.",
           "Automated follow-up workflow reduces clinic admin time by an estimated 6 hours/week.",
-          "Healthtech sector fit with Cradle's digital health priority vertical.",
+          "Healthtech sector fit with program's digital health priority vertical.",
         ],
         riskFlags: [
           {
@@ -385,7 +385,7 @@ export async function applyShowcaseAudits(prisma: PrismaClient) {
     await prisma.intakeAudit.deleteMany({ where: { applicationId: application.id } });
     await prisma.routingDecision.deleteMany({ where: { applicationId: application.id } });
 
-    const grantId = programmeIds["cradle-grant"];
+    const grantId = programmeIds["grant-track"];
 
     await prisma.intakeAudit.create({
       data: {

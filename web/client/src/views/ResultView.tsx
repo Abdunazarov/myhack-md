@@ -22,6 +22,7 @@ import type { ViewType } from "../App";
 import { PageShell, PageHeader, FadeIn, StaggerGrid, StaggerItem } from "../components/layout/PageShell";
 import Button from "../components/ui/Button";
 import SurfaceCard from "../components/ui/SurfaceCard";
+import { AUTH_TOKEN_KEY } from "../lib/authStorage";
 
 function statusLabel(status: ApplicationStatus): string {
   return status.replace(/_/g, " ");
@@ -95,7 +96,7 @@ export default function ResultView({
         let authToken = token;
         if (!authToken) {
           await loginAsRole("Founder");
-          authToken = localStorage.getItem("cradle_auth_token");
+          authToken = localStorage.getItem(AUTH_TOKEN_KEY);
         }
         if (!authToken) throw new Error("Not signed in");
         const result = await getApplication(authToken, applicationId!);
@@ -130,7 +131,7 @@ export default function ResultView({
       <PageShell className="text-center">
         <FadeIn className="py-24 space-y-4">
           <p className="text-error font-medium">{error ?? "Application not found"}</p>
-          <Button onClick={() => onNavigate("apply")}>Submit application</Button>
+          <Button onClick={() => onNavigate("apply")}>Apply</Button>
         </FadeIn>
       </PageShell>
     );
@@ -156,7 +157,7 @@ export default function ResultView({
         action={
           <Button variant="secondary" onClick={() => onNavigate("apply")}>
             <RefreshCw size={18} />
-            Apply again
+            Re-apply
           </Button>
         }
       />
@@ -197,7 +198,7 @@ export default function ResultView({
                     </div>
                   </div>
                   <div className="flex-1 w-full min-w-0">
-                    <h3 className="text-xl font-semibold mb-4">Readiness score</h3>
+                    <h3 className="text-xl font-semibold mb-4">Readiness</h3>
                     {breakdown && (
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {[
@@ -236,9 +237,8 @@ export default function ResultView({
                   {routing?.decisionType?.replace(/_/g, " ") ?? "Routed"}
                 </span>
                 <h2 className="text-2xl font-semibold mt-3 text-on-background">{programmeName}</h2>
-                <p className="text-base text-on-surface-variant mt-4 leading-relaxed">
-                  {routing?.explanation ??
-                    "Programme routing will appear once the audit completes."}
+                <p className="text-sm text-on-surface-variant mt-3 line-clamp-3">
+                  {routing?.explanation ?? "Routing pending."}
                 </p>
               </SurfaceCard>
             </StaggerItem>
@@ -247,10 +247,10 @@ export default function ResultView({
               <SurfaceCard padding="lg" className="bg-surface-container-low">
                 <div className="flex items-center gap-2 mb-4">
                   <FileText className="text-primary" size={22} />
-                  <h3 className="text-xl font-semibold">Audit summary</h3>
+                  <h3 className="text-xl font-semibold">Summary</h3>
                 </div>
-                <p className="text-base text-on-surface-variant leading-relaxed">
-                  {audit?.founderReport || audit?.aiSummary || "No audit narrative available."}
+                <p className="text-sm text-on-surface-variant line-clamp-4">
+                  {audit?.founderReport || audit?.aiSummary || "No summary yet."}
                 </p>
               </SurfaceCard>
             </StaggerItem>
@@ -258,7 +258,7 @@ export default function ResultView({
             {audit && (
               <StaggerItem>
                 <div>
-                  <h3 className="text-xl font-semibold mb-4">Performance analytics</h3>
+                  <h3 className="text-xl font-semibold mb-4">Analytics</h3>
                   <AuditCharts
                     audit={audit}
                     metricsHistoryJson={app.ecosystemProject.metricsHistory}
@@ -270,7 +270,7 @@ export default function ResultView({
             {audit && audit.benchmarkDeltas.length > 0 && (
               <StaggerItem>
                 <div>
-                  <h3 className="text-xl font-semibold mb-4">Benchmark highlights</h3>
+                  <h3 className="text-xl font-semibold mb-4">Benchmarks</h3>
                   <StaggerGrid className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {audit.benchmarkDeltas.slice(0, 3).map((b) => (
                       <StaggerItem key={b.metricName}>
@@ -299,7 +299,7 @@ export default function ResultView({
                               {b.status}
                             </span>
                           </div>
-                          <p className="text-sm text-on-surface-variant mt-2 leading-relaxed">
+                          <p className="text-sm text-on-surface-variant mt-2 line-clamp-2">
                             {b.message}
                           </p>
                         </SurfaceCard>
@@ -323,7 +323,7 @@ export default function ResultView({
                   {(audit?.strengths ?? []).map((s) => (
                     <li key={s} className="flex items-start gap-2">
                       <CheckCircle2 className="text-primary shrink-0 mt-0.5" size={18} />
-                      <p className="text-sm leading-relaxed">{s}</p>
+                      <p className="text-sm line-clamp-2">{s}</p>
                     </li>
                   ))}
                   {!audit?.strengths?.length && (
@@ -336,7 +336,7 @@ export default function ResultView({
             <StaggerItem>
               <SurfaceCard padding="lg">
                 <h4 className="text-sm font-semibold text-error mb-4 uppercase tracking-wide">
-                  Risk flags
+                  Risks
                 </h4>
                 <ul className="space-y-4">
                   {(audit?.riskFlags ?? []).map((r) => (
@@ -344,7 +344,7 @@ export default function ResultView({
                       <AlertTriangle className="text-error shrink-0 mt-0.5" size={18} />
                       <div>
                         <p className="text-sm font-semibold">{riskTitle(r)}</p>
-                        <p className="text-sm text-on-surface-variant leading-relaxed mt-0.5">
+                        <p className="text-sm text-on-surface-variant line-clamp-2 mt-0.5">
                           {r.message}
                         </p>
                         <span

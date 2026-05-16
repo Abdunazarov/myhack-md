@@ -27,7 +27,7 @@ CREATE TABLE "HistoricalOutcome" (
     "problemTags" TEXT NOT NULL DEFAULT '[]',
     "outcome" TEXT NOT NULL,
     "feedbackLog" TEXT NOT NULL,
-    "cohortYear" INTEGER NOT NULL DEFAULT 2024,
+    "cohortYear" INTEGER NOT NULL DEFAULT 2025,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "HistoricalOutcome_mentorNodeId_fkey" FOREIGN KEY ("mentorNodeId") REFERENCES "MentorNode" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );

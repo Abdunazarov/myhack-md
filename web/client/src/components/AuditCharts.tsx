@@ -96,7 +96,7 @@ function BenchmarkCompareChart({ audit }: { audit: AuditPayload }) {
   return (
     <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-6">
       <h4 className="text-sm font-semibold text-on-surface-variant uppercase mb-4">
-        vs 2024 cohort median
+        vs 2025 cohort median
       </h4>
       <div className="space-y-4">
         {deltas.map((d) => (

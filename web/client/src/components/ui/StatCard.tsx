@@ -30,7 +30,7 @@ export default function StatCard({ label, value, icon: Icon, hint, accent = "def
             </p>
             <p className="text-4xl font-bold text-on-background mt-2 tabular-nums">{value}</p>
             {hint && (
-              <p className="text-sm text-on-surface-variant mt-2 leading-relaxed">{hint}</p>
+              <p className="text-xs text-on-surface-variant mt-1">{hint}</p>
             )}
           </div>
           <div

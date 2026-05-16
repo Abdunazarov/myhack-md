@@ -242,7 +242,7 @@ model HistoricalOutcome {
   problemTags  String         @default("[]")
   outcome      LinkageOutcome
   feedbackLog  String
-  cohortYear   Int            @default(2024)
+  cohortYear   Int            @default(2025)
   createdAt    DateTime       @default(now())
 
   mentor MentorNode @relation(fields: [mentorNodeId], references: [id], onDelete: Cascade)

@@ -1,6 +1,5 @@
 import { useEffect, useState, type FormEvent } from "react";
 import {
-  Info,
   ArrowLeft,
   ArrowRight,
   Building2,
@@ -13,6 +12,7 @@ import { createApplication } from "../api/client";
 import type { ApplicationFormData } from "../api/types";
 import { useAuth } from "../context/AuthContext";
 import { defaultApplicationForm } from "../lib/applicationDefaults";
+import { AUTH_TOKEN_KEY } from "../lib/authStorage";
 import {
   formatFieldErrors,
   validateApplicationForm,
@@ -103,7 +103,7 @@ export default function ApplyView({
       let authToken = token;
       if (!authToken) {
         await loginAsRole("Founder");
-        authToken = localStorage.getItem("cradle_auth_token");
+        authToken = localStorage.getItem(AUTH_TOKEN_KEY);
       }
       if (!authToken) throw new Error("Could not sign in as demo founder");
 
@@ -128,22 +128,7 @@ export default function ApplyView({
 
   return (
     <PageShell className="pb-32">
-      <PageHeader
-        title="Accelerator application"
-        description="Submit your profile for AI pitch audit and programme routing via LinkRouter."
-      />
-      <FadeIn>
-        <div className="mb-8 p-4 bg-secondary-container text-on-secondary-container rounded-xl flex gap-4 border border-outline-variant">
-          <Info className="shrink-0" size={24} />
-          <div className="text-sm">
-            <p className="font-bold">Demo mode</p>
-            <p className="mt-1 opacity-90">
-              Signed in as <strong>{user?.email ?? "founder@demo.com"}</strong>. Submission runs a
-              live audit against seeded benchmarks.
-            </p>
-          </div>
-        </div>
-      </FadeIn>
+      <PageHeader title="Apply" />
 
       <StepTabs steps={steps} current={step} onChange={setStep} layoutId="apply-step-underline" />
 
@@ -253,7 +238,7 @@ export default function ApplyView({
                     className={`${inputClass} h-auto py-3`}
                     value={form.problem}
                     onChange={(e) => update("problem", e.target.value)}
-                    placeholder="Describe the pain point (min 20 characters)"
+                    placeholder="Pain point"
                   />
                 </div>
                 <div className="space-y-2">
@@ -264,7 +249,7 @@ export default function ApplyView({
                     className={`${inputClass} h-auto py-3`}
                     value={form.solution}
                     onChange={(e) => update("solution", e.target.value)}
-                    placeholder="How you solve it (min 20 characters)"
+                    placeholder="Your solution"
                   />
                 </div>
                 <div className="space-y-2">
@@ -277,7 +262,7 @@ export default function ApplyView({
                     className={`${inputClass} h-auto py-3`}
                     value={form.targetCustomers}
                     onChange={(e) => update("targetCustomers", e.target.value)}
-                    placeholder="Who you sell to (min 10 characters)"
+                    placeholder="Target customers"
                   />
                 </div>
                 <div className="space-y-2">
@@ -304,7 +289,7 @@ export default function ApplyView({
                     className={`${inputClass} h-auto py-3`}
                     value={form.tractionSummary}
                     onChange={(e) => update("tractionSummary", e.target.value)}
-                    placeholder="Revenue, pilots, users (min 10 characters)"
+                    placeholder="Revenue, pilots, users"
                   />
                 </div>
                 <div className="space-y-2">
@@ -399,7 +384,7 @@ export default function ApplyView({
                     className={`${inputClass} h-auto py-3`}
                     value={form.useOfFunds}
                     onChange={(e) => update("useOfFunds", e.target.value)}
-                    placeholder="How grant funds will be used (min 20 characters)"
+                    placeholder="Use of funds"
                   />
                 </div>
               </div>
@@ -411,9 +396,9 @@ export default function ApplyView({
                 className="text-error text-sm font-medium bg-error-container/30 p-3 rounded-lg space-y-1"
               >
                 <p>{error}</p>
-                {error.includes("min") || error.includes("characters") || error.includes("Complete this step") ? (
+                {error.includes("Complete this step") ? (
                   <p className="text-xs font-normal text-on-surface-variant">
-                    Add more detail on problem, solution, traction, and use of funds (see placeholders).
+                    Fill required fields on this step.
                   </p>
                 ) : null}
               </div>
@@ -445,7 +430,7 @@ export default function ApplyView({
                     </>
                   ) : (
                     <>
-                      Submit & audit
+                      Submit
                       <ArrowRight size={20} />
                     </>
                   )}
@@ -458,32 +443,20 @@ export default function ApplyView({
       </FadeIn>
 
       <FadeIn delay={0.1}>
-        <h3 className="text-xl font-semibold mb-4 text-on-background">Live eligibility preview</h3>
+        <h3 className="text-xl font-semibold mb-4 text-on-background">Live preview</h3>
         <StaggerGrid className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-16">
-          <StatCard
-            label="Company"
-            value={form.companyName || "—"}
-            icon={Building2}
-            hint={form.companyName ? "Registered name" : "Not set yet"}
-          />
+          <StatCard label="Company" value={form.companyName || "—"} icon={Building2} />
           <StatCard
             label="Runway"
             value={form.runwayMonths > 0 ? `${form.runwayMonths} mo` : "—"}
             icon={Hourglass}
-            hint="Months of runway"
           />
+          <StatCard label="Sector" value={form.sector || "—"} icon={Shapes} />
           <StatCard
-            label="Sector"
-            value={form.sector || "—"}
-            icon={Shapes}
-            hint="Primary vertical"
-          />
-          <StatCard
-            label="Completeness"
+            label="Complete"
             value={`${readinessPreview}%`}
             icon={ShieldCheck}
             accent="primary"
-            hint="Updates as you type"
           />
         </StaggerGrid>
       </FadeIn>

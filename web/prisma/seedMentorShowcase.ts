@@ -21,7 +21,7 @@ function healthLogs(scores: number[], notes: string[]) {
 /** Rich cohort for demo mentor (mentor@demo.com → Dr. Sarah Chen). */
 export async function seedMentorShowcase(prisma: PrismaClient) {
   const sarah = await prisma.mentorNode.findFirst({
-    where: { email: "sarah.chen@cradle.my" },
+    where: { email: "sarah.chen@linkrouter.my" },
   });
   if (!sarah) return;
 
@@ -125,7 +125,7 @@ export async function seedMentorShowcase(prisma: PrismaClient) {
       healthScore: 92,
       matchScore: 0.89,
       healthHistory: [70, 78, 85, 88, 90, 92],
-      healthNotes: ["Graduated cohort 2024", "Final review — success"],
+      healthNotes: ["Graduated cohort 2025", "Final review — success"],
       explanation: "Successful graduation — enterprise analytics playbook.",
       finalOutcome: "Success" as const,
     },
@@ -137,7 +137,7 @@ export async function seedMentorShowcase(prisma: PrismaClient) {
       healthScore: 86,
       matchScore: 0.85,
       healthHistory: [65, 72, 78, 82, 84, 86],
-      healthNotes: ["Graduated cohort 2024", "Final review — success"],
+      healthNotes: ["Graduated cohort 2025", "Final review — success"],
       explanation: "Successful cleantech agri GTM mentorship.",
       finalOutcome: "Success" as const,
     },
@@ -195,8 +195,8 @@ export async function seedMentorShowcase(prisma: PrismaClient) {
         problemTags: JSON.stringify(["B2B_Enterprise", "Go_To_Market"]),
         outcome: "Success",
         feedbackLog:
-          "Closed 3 enterprise cloud migration pilots; playbook reused for Cradle IT cohort matching.",
-        cohortYear: 2024,
+          "Closed 3 enterprise cloud migration pilots; playbook reused for IT cohort matching.",
+        cohortYear: 2025,
       },
       {
         mentorNodeId: sarah.id,
@@ -207,7 +207,7 @@ export async function seedMentorShowcase(prisma: PrismaClient) {
         outcome: "Success",
         feedbackLog:
           "Sarah restructured enterprise sales motion — 2 LOIs signed within 10 weeks for data residency product.",
-        cohortYear: 2024,
+        cohortYear: 2025,
       },
       {
         mentorNodeId: sarah.id,
@@ -218,7 +218,7 @@ export async function seedMentorShowcase(prisma: PrismaClient) {
         outcome: "Success",
         feedbackLog:
           "Enterprise GTM narrative used in seed extension; RM2.1M raised with Sarah's committee prep.",
-        cohortYear: 2024,
+        cohortYear: 2025,
       },
     ],
   });

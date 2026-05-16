@@ -6,7 +6,7 @@ const envSchema = z.object({
   GEMINI_MODEL: z.string().default("gemini-2.0-flash"),
   BACKEND_CORS_ORIGIN: z.string().default("*"),
   ENABLE_DEMO_RESET: z.string().default("false"),
-  AUTH_SECRET: z.string().min(16).default("cradle-hackathon-demo-secret-key"),
+  AUTH_SECRET: z.string().min(16).default("linkrouter-hackathon-demo-secret-key"),
 });
 
 export const env = envSchema.parse({

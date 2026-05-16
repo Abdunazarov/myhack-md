@@ -9,7 +9,7 @@ export async function GET() {
 
   return jsonOk({
     status: "ok",
-    service: "cradle-linkrouter-backend",
+    service: "linkrouter-backend",
     module: "smart-intake-auto-routing",
     ai: {
       provider: "google-gemini",

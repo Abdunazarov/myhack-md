@@ -14,7 +14,7 @@ describe("benchmark comparison", () => {
         median: 120,
         p75: 160,
         successfulCohortCount: 20,
-        sourceCohortYear: 2024,
+        sourceCohortYear: 2025,
       },
       {
         id: "b2",
@@ -25,7 +25,7 @@ describe("benchmark comparison", () => {
         median: 5000,
         p75: 10000,
         successfulCohortCount: 20,
-        sourceCohortYear: 2024,
+        sourceCohortYear: 2025,
       },
     ]);
 

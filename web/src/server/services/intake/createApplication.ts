@@ -18,7 +18,7 @@ export async function createApplication(
     .trim();
 
   const grantProgramme = await prisma.programme.findUnique({
-    where: { slug: "cradle-grant" },
+    where: { slug: "grant-track" },
   });
   if (!grantProgramme) throw new Error("Grant programme not seeded. Run: npm run db:seed");
 

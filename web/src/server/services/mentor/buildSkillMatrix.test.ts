@@ -13,7 +13,7 @@ describe("buildSkillMatrixFromOutcomes", () => {
         mentorNodeId: "m1",
         id: "1",
         startupName: "A",
-        cohortYear: 2024,
+        cohortYear: 2025,
         createdAt: new Date(),
       },
       {
@@ -25,7 +25,7 @@ describe("buildSkillMatrixFromOutcomes", () => {
         mentorNodeId: "m1",
         id: "2",
         startupName: "B",
-        cohortYear: 2024,
+        cohortYear: 2025,
         createdAt: new Date(),
       },
     ] as never);
@@ -46,7 +46,7 @@ describe("buildSkillMatrixFromOutcomes", () => {
         mentorNodeId: "m1",
         id: "1",
         startupName: "C",
-        cohortYear: 2024,
+        cohortYear: 2025,
         createdAt: new Date(),
       },
       {
@@ -58,7 +58,7 @@ describe("buildSkillMatrixFromOutcomes", () => {
         mentorNodeId: "m1",
         id: "2",
         startupName: "D",
-        cohortYear: 2024,
+        cohortYear: 2025,
         createdAt: new Date(),
       },
     ] as never);

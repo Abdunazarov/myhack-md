@@ -5,8 +5,8 @@ import { baseApplication } from "../intake/testFixtures";
 
 const grantProgramme = {
   id: "grant",
-  slug: "cradle-grant",
-  name: "Cradle Grant Track",
+  slug: "grant-track",
+  name: "Grant Track",
   type: ProgrammeType.Grant,
   description: "Grant track",
   priority: 100,

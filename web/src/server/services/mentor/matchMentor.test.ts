@@ -22,7 +22,7 @@ describe("mentor matching", () => {
         mentorNodeId: "x",
         id: "1",
         startupName: "A",
-        cohortYear: 2024,
+        cohortYear: 2025,
         createdAt: new Date(),
       },
       {
@@ -34,7 +34,7 @@ describe("mentor matching", () => {
         mentorNodeId: "x",
         id: "2",
         startupName: "B",
-        cohortYear: 2024,
+        cohortYear: 2025,
         createdAt: new Date(),
       },
     ]);

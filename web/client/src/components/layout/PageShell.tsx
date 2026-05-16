@@ -36,16 +36,16 @@ export function PageHeader({
       transition={headerEnter.transition}
       className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8"
     >
-      <div>
+      <motion.div className="min-w-0">
         <h1 className="text-3xl md:text-4xl font-bold text-on-background tracking-tight">
           {title}
         </h1>
         {description && (
-          <p className="text-on-surface-variant mt-2 text-base leading-relaxed max-w-2xl">
+          <p className="text-on-surface-variant mt-1.5 text-sm whitespace-nowrap">
             {description}
           </p>
         )}
-      </div>
+      </motion.div>
       {action && <div className="shrink-0">{action}</div>}
     </motion.header>
   );

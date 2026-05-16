@@ -18,6 +18,7 @@ import { cardHover } from "../components/layout/motion";
 import StatCard from "../components/ui/StatCard";
 import ProjectCard from "../components/ui/ProjectCard";
 import Button from "../components/ui/Button";
+import { AUTH_TOKEN_KEY } from "../lib/authStorage";
 
 const inputClass =
   "w-full rounded-xl border border-outline-variant bg-surface-container-lowest px-4 text-base focus:border-primary outline-none focus:ring-1 focus:ring-primary transition-colors";
@@ -53,7 +54,7 @@ export default function FounderDashboardView({
         let authToken = token;
         if (!authToken) {
           await loginAsRole("Founder");
-          authToken = localStorage.getItem("cradle_auth_token");
+          authToken = localStorage.getItem(AUTH_TOKEN_KEY);
         }
         if (!authToken) throw new Error("Not signed in");
         const data = await getFounderDashboard(authToken);
@@ -80,7 +81,7 @@ export default function FounderDashboardView({
 
   const handleRoadblockSubmit = async () => {
     if (!selectedProjectId || roadblockText.length < 20) {
-      setRoadblockError("Describe your roadblock in at least 20 characters.");
+      setRoadblockError("Add at least 20 characters.");
       return;
     }
     setRoadblockSubmitting(true);
@@ -90,7 +91,7 @@ export default function FounderDashboardView({
       let authToken = token;
       if (!authToken) {
         await loginAsRole("Founder");
-        authToken = localStorage.getItem("cradle_auth_token");
+        authToken = localStorage.getItem(AUTH_TOKEN_KEY);
       }
       if (!authToken) throw new Error("Not signed in");
       const result = await submitRoadblock(authToken, {
@@ -104,7 +105,7 @@ export default function FounderDashboardView({
       });
       setRoadblockText("");
     } catch (err) {
-      setRoadblockError(err instanceof Error ? err.message : "Failed to submit roadblock");
+      setRoadblockError(err instanceof Error ? err.message : "Failed to submit");
     } finally {
       setRoadblockSubmitting(false);
     }
@@ -115,15 +116,10 @@ export default function FounderDashboardView({
   return (
     <PageShell className="pb-12 space-y-8">
       <PageHeader
-        title="Founder dashboard"
-        description={
-          founderName
-            ? `Welcome back, ${founderName} — track intake, readiness, and mentor support.`
-            : "Track applications, readiness scores, and mentor matching."
-        }
+        title={founderName ? `Hi, ${founderName.split(" ")[0]}` : "Dashboard"}
         action={
           <Button onClick={() => onNavigate("apply")} className="hidden sm:inline-flex">
-            New application
+            Apply
           </Button>
         }
       />
@@ -150,14 +146,12 @@ export default function FounderDashboardView({
               value={dashboard.stats.applications}
               icon={FileText}
               accent="primary"
-              hint="Submitted through LinkRouter intake"
             />
             <StatCard
-              label="Active mentorships"
+              label="Mentors"
               value={dashboard.stats.activeMentorships}
               icon={Handshake}
               accent="secondary"
-              hint="Ongoing mentor assignments"
             />
           </StaggerGrid>
 
@@ -166,10 +160,10 @@ export default function FounderDashboardView({
               <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-2">
                   <FolderKanban className="text-primary" size={22} />
-                  <h2 className="text-xl font-semibold text-on-background">Your projects</h2>
+                  <h2 className="text-xl font-semibold text-on-background">Projects</h2>
                 </div>
                 <span className="text-sm text-on-surface-variant tabular-nums">
-                  {dashboard.projects.length} total
+                  {dashboard.projects.length}
                 </span>
               </div>
 
@@ -177,11 +171,8 @@ export default function FounderDashboardView({
                 <div
                   className={`rounded-2xl border border-dashed border-outline-variant bg-surface-container-low p-10 text-center ${cardHover}`}
                 >
-                  <p className="text-on-surface-variant mb-5 max-w-sm mx-auto">
-                    No projects yet. Submit your first application to get a readiness audit and programme
-                    routing.
-                  </p>
-                  <Button onClick={() => onNavigate("apply")}>Submit application</Button>
+                  <p className="text-on-surface-variant mb-5">No projects yet.</p>
+                  <Button onClick={() => onNavigate("apply")}>Apply</Button>
                 </div>
               ) : (
                 <StaggerGrid className="space-y-4">
@@ -206,46 +197,30 @@ export default function FounderDashboardView({
                   <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10">
                     <Users className="text-primary" size={22} />
                   </div>
-                  <div>
-                    <h2 className="text-xl font-semibold text-on-background">Request mentor help</h2>
-                    <p className="text-sm text-on-surface-variant mt-0.5">
-                      Describe a roadblock — we match you using cohort history.
-                    </p>
-                  </div>
+                  <h2 className="text-xl font-semibold text-on-background">Ask a mentor</h2>
                 </div>
 
-                <div className="space-y-4 max-w-2xl">
-                  <div>
-                    <label className="text-sm font-medium text-on-surface-variant mb-1.5 block">
-                      Project
-                    </label>
-                    <select
-                      className={`${inputClass} h-12`}
-                      value={selectedProjectId ?? ""}
-                      onChange={(e) => setSelectedProjectId(e.target.value)}
-                    >
-                      {dashboard.projects
-                        .filter((p) => p.mentorMatchingEligible)
-                        .map((p) => (
-                          <option key={p.id} value={p.id}>
-                            {p.name}
-                          </option>
-                        ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-medium text-on-surface-variant mb-1.5 block">
-                      Roadblock
-                    </label>
-                    <textarea
-                      rows={3}
-                      className={`${inputClass} py-3 resize-none`}
-                      placeholder="Describe your roadblock (min 20 characters)..."
-                      value={roadblockText}
-                      onChange={(e) => setRoadblockText(e.target.value)}
-                    />
-                  </div>
+                <div className="space-y-3 max-w-2xl">
+                  <select
+                    className={`${inputClass} h-12`}
+                    value={selectedProjectId ?? ""}
+                    onChange={(e) => setSelectedProjectId(e.target.value)}
+                  >
+                    {dashboard.projects
+                      .filter((p) => p.mentorMatchingEligible)
+                      .map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.name}
+                        </option>
+                      ))}
+                  </select>
+                  <textarea
+                    rows={2}
+                    className={`${inputClass} py-3 resize-none`}
+                    placeholder="What's blocking you?"
+                    value={roadblockText}
+                    onChange={(e) => setRoadblockText(e.target.value)}
+                  />
 
                   {roadblockError && (
                     <p className="text-error text-sm flex items-center gap-2">
@@ -258,13 +233,13 @@ export default function FounderDashboardView({
                     <FadeIn>
                       <div className="rounded-xl bg-primary-container text-on-primary-container p-4 border border-primary/20">
                         <div className="flex items-center gap-2 mb-2 flex-wrap">
-                        <CheckCircle2 size={20} />
-                        <span className="font-semibold">Matched: {roadblockResult.mentorName}</span>
-                        <span className="text-xs opacity-80">
-                          ({Math.round(roadblockResult.matchScore * 100)}% match)
-                        </span>
-                      </div>
-                        <p className="text-sm leading-relaxed">{roadblockResult.explanation}</p>
+                          <CheckCircle2 size={20} />
+                          <span className="font-semibold">{roadblockResult.mentorName}</span>
+                          <span className="text-xs opacity-80">
+                            {Math.round(roadblockResult.matchScore * 100)}% match
+                          </span>
+                        </div>
+                        <p className="text-sm line-clamp-2">{roadblockResult.explanation}</p>
                       </div>
                     </FadeIn>
                   )}
@@ -279,7 +254,7 @@ export default function FounderDashboardView({
                     ) : (
                       <Send size={18} />
                     )}
-                    Submit roadblock
+                    Find mentor
                   </Button>
                 </div>
               </section>

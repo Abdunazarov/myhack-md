@@ -40,7 +40,7 @@ describe("Module 2 — Dynamic Cohort Orchestration", () => {
     });
 
     it("POST /api/admin/mentors/rebuild-skills recomputes all matrices", async () => {
-      const token = await loginAs("admin@cradle.com");
+      const token = await loginAs("admin@linkrouter.my");
       const res = await rebuildSkillsPOST(
         jsonAuth("http://localhost/api/admin/mentors/rebuild-skills", token, {
           method: "POST",
@@ -52,7 +52,7 @@ describe("Module 2 — Dynamic Cohort Orchestration", () => {
     });
 
     it("GET /api/admin/mentors returns mentor admin view", async () => {
-      const token = await loginAs("admin@cradle.com");
+      const token = await loginAs("admin@linkrouter.my");
       const res = await adminMentorsGET(
         jsonAuth("http://localhost/api/admin/mentors", token),
       );
@@ -129,9 +129,9 @@ describe("Module 2 — Dynamic Cohort Orchestration", () => {
       expect(body.linkages.length).toBeGreaterThan(0);
     });
 
-    it("mentor@cradle.com is linked to Dr. Sarah Chen profile", async () => {
+    it("mentor@linkrouter.my is linked to Dr. Sarah Chen profile", async () => {
       const user = await prisma.user.findUnique({
-        where: { email: "mentor@cradle.com" },
+        where: { email: "mentor@linkrouter.my" },
         include: { mentorNode: true },
       });
       expect(user?.mentorNode?.name).toContain("Sarah");
@@ -162,7 +162,7 @@ describe("Module 2 — Dynamic Cohort Orchestration", () => {
 
   describe("mentor operations", () => {
     it("GET /api/mentor/dashboard shows live assigned startups", async () => {
-      const token = await loginAs("mentor@cradle.com");
+      const token = await loginAs("mentor@linkrouter.my");
       const res = await mentorDashboardGET(
         jsonAuth("http://localhost/api/mentor/dashboard", token),
       );
@@ -181,7 +181,7 @@ describe("Module 2 — Dynamic Cohort Orchestration", () => {
     });
 
     it("GET /api/mentor/linkages returns mentor linkage list", async () => {
-      const token = await loginAs("mentor@cradle.com");
+      const token = await loginAs("mentor@linkrouter.my");
       const res = await mentorLinkagesGET(
         jsonAuth("http://localhost/api/mentor/linkages", token),
       );
@@ -193,7 +193,7 @@ describe("Module 2 — Dynamic Cohort Orchestration", () => {
 
   describe("cohort health & linkage lifecycle (Feature 2.3)", () => {
     it("GET /api/admin/cohort-health returns intervention queue and alerts", async () => {
-      const token = await loginAs("admin@cradle.com");
+      const token = await loginAs("admin@linkrouter.my");
       const res = await cohortHealthGET(
         jsonAuth("http://localhost/api/admin/cohort-health", token),
       );
@@ -219,7 +219,7 @@ describe("Module 2 — Dynamic Cohort Orchestration", () => {
       expect(linkage).toBeTruthy();
       const before = linkage!.healthScore;
 
-      const token = await loginAs("mentor@cradle.com");
+      const token = await loginAs("mentor@linkrouter.my");
       const res = await linkageFeedbackPOST(
         jsonAuth(`http://localhost/api/linkages/${linkage!.id}/feedback`, token, {
           method: "POST",
@@ -246,7 +246,7 @@ describe("Module 2 — Dynamic Cohort Orchestration", () => {
       });
       expect(linkage).toBeTruthy();
 
-      const token = await loginAs("admin@cradle.com");
+      const token = await loginAs("admin@linkrouter.my");
       const res = await linkagePATCH(
         jsonAuth(`http://localhost/api/linkages/${linkage!.id}`, token, {
           method: "PATCH",

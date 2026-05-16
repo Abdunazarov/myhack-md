@@ -4,7 +4,7 @@ export { OPTIONS };
 
 export async function GET() {
   return jsonOk({
-    service: "Cradle LinkRouter",
+    service: "LinkRouter",
     modules: ["smart-intake-auto-routing", "dynamic-cohort-orchestration"],
     version: "2.0.0",
     documentation: "See web/README.md",

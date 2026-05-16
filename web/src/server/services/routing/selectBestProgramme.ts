@@ -6,7 +6,7 @@ import type {
   ScoreBreakdown,
 } from "../intake/intakeTypes";
 
-const GRANT_SLUG = "cradle-grant";
+const GRANT_SLUG = "grant-track";
 const PRE_ACCEL_SLUG = "mystartup-pre-accelerator";
 const MENTOR_SLUG = "mentor-readiness";
 const FINANCIAL_SLUG = "financial-model-repair";
@@ -30,7 +30,7 @@ export function selectBestProgramme(
       recommendedProgrammeName: grantProgramme!.name,
       reasonCodes: ["grant_hard_pass", "readiness_above_threshold"],
       explanation:
-        "The startup passes all hard Cradle Grant constraints and is ready for grant committee review.",
+        "The startup passes all hard grant constraints and is ready for grant committee review.",
     };
   }
 
@@ -85,7 +85,7 @@ export function selectBestProgramme(
       recommendedProgrammeName: prog.name,
       reasonCodes: [...reasonCodes, "borderline_score"],
       explanation:
-        "Readiness is borderline. Mentor Readiness is recommended, with final review by a Cradle admin.",
+        "Readiness is borderline. Mentor Readiness is recommended, with final review by a program admin.",
     };
   }
 

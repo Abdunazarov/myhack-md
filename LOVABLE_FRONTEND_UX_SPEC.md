@@ -1,8 +1,8 @@
-# Cradle LinkRouter — Frontend UX Specification (Module 1)
+# LinkRouter — Frontend UX Specification (Module 1)
 
 **Purpose:** This document describes the UX, pages, user flows, and business logic for the Lovable frontend. It is aligned with the existing API-only backend in `web/`. Do not implement color palettes or visual design here — focus on structure, content, interactions, and API wiring.
 
-**Product:** Cradle LinkRouter — Smart Intake & Auto-Routing  
+**Product:** LinkRouter — Smart Intake & Auto-Routing  
 **Module in scope:** Module 1 only (grant intake, AI pitch audit, ecosystem routing)  
 **Language:** English (all copy, labels, errors)  
 
@@ -10,11 +10,11 @@
 
 ## 1. Product Summary
 
-Cradle LinkRouter replaces manual startup screening with an intelligent intake engine. A founder submits a structured application; the system:
+LinkRouter replaces manual startup screening with an intelligent intake engine. A founder submits a structured application; the system:
 
 1. Creates a reusable **Ecosystem Project** entity (not a one-off form).
 2. Runs an **AI Pitch Audit** comparing the startup to historical successful alumni benchmarks.
-3. Applies **deterministic eligibility rules** for the Cradle Grant (hard constraints are never decided by AI alone).
+3. Applies **deterministic eligibility rules** for the grant (hard constraints are never decided by AI alone).
 4. Computes a **Readiness Score** with a transparent breakdown.
 5. **Auto-routes** the startup to the best-fit programme if the grant is not suitable — without asking them to re-enter data.
 
@@ -34,9 +34,9 @@ The backend uses **JWT Bearer tokens** (7-day expiry). After login, store `token
 | Role | Email (demo) | Password | Primary goal | Landing route |
 |------|----------------|----------|----------------|---------------|
 | **Founder** | `founder@demo.com` | `demo123` | Submit application, view own results, edit & re-audit | `/apply` |
-| **Admin** | `admin@cradle.com` | `demo123` | Review pipeline, validate AI/routing, override decisions | `/admin` |
-| **Mentor** | `mentor@cradle.com` | `demo123` | Preview Module 2 cohort / mentorship dashboard | `/mentor` |
-| **Investor** | `investor@cradle.com` | `demo123` | Preview Module 3 graduated startups & verified passports | `/investor` |
+| **Admin** | `admin@linkrouter.my` | `demo123` | Review pipeline, validate AI/routing, override decisions | `/admin` |
+| **Mentor** | `mentor@linkrouter.my` | `demo123` | Preview Module 2 cohort / mentorship dashboard | `/mentor` |
+| **Investor** | `investor@linkrouter.my` | `demo123` | Preview Module 3 graduated startups & verified passports | `/investor` |
 
 **Public (no auth):** Landing, Programmes catalog, Programme detail, `GET /api/health`, `GET /api/programmes*`.
 
@@ -68,7 +68,7 @@ The backend uses **JWT Bearer tokens** (7-day expiry). After login, store `token
 
 **Global navigation (role-aware, after login):**
 
-- Logo / product name: **Cradle LinkRouter**
+- Logo / product name: **LinkRouter**
 - **Founder:** `Apply` | `My applications` | `My result` (last `applicationId` from localStorage)
 - **Admin:** `Dashboard` | `Intake` | `Reset demo` (if allowed)
 - **Mentor:** `Mentor hub` (single page for MVP)
@@ -94,7 +94,7 @@ The backend uses **JWT Bearer tokens** (7-day expiry). After login, store `token
 
 2. **How it works (3 steps)**
    - Step 1: Founder submits structured startup profile
-   - Step 2: System runs AI Pitch Audit vs 2024 alumni benchmarks
+   - Step 2: System runs AI Pitch Audit vs 2025 alumni benchmarks
    - Step 3: Startup is scored, checked against grant rules, and routed to the right programme
 
 3. **Feature cards (Module 1)**
@@ -103,7 +103,7 @@ The backend uses **JWT Bearer tokens** (7-day expiry). After login, store `token
 
 4. **Future modules (disabled / “Coming soon”)**
    - Module 2: Mentor matching from historical outcomes
-   - Module 3: Cradle Verified Passport for investors
+   - Module 3: Platform Verified Passport for investors
 
 **No API call required** (optional: `GET /api/health` in footer to show “Backend connected”).
 
@@ -215,7 +215,7 @@ Response shape: `{ application, audit, routing }`
 #### Section D — Recommended route (most important for demo)
 - Programme name: `routing.recommendedProgramme.name` or `application.targetProgramme.name`
 - Decision type label:
-  - `Grant_Eligible` → “Recommended for Cradle Grant review”
+  - `Grant_Eligible` → “Recommended for grant review”
   - `Auto_Routed` → “Routed to alternative programme”
   - `Needs_Review` → “Borderline — admin review required”
   - `Rejected` → “Not eligible at this time”
@@ -242,7 +242,7 @@ Response shape: `{ application, audit, routing }`
 - Show `application.pitchDeckFileName` if a PDF was uploaded
 
 #### Section I — Grant eligibility (transparency)
-- Filter `audit.eligibilityResults` for `programmeSlug === "cradle-grant"`
+- Filter `audit.eligibilityResults` for `programmeSlug === "grant-track"`
 - Show `hardPass` yes/no
 - Checklist of rules with pass/fail and `message`
 
@@ -269,7 +269,7 @@ Response shape: `{ application, audit, routing }`
 - Link: `View details` → `/programmes/:slug`
 
 **Expected programmes (from seed):**
-1. Cradle Grant Track
+1. Grant Track
 2. MYStartup Pre-Accelerator
 3. Mentor Readiness Track
 4. Financial Model Repair Track
@@ -330,7 +330,7 @@ Same body as create (partial fields allowed). Supports JSON or `multipart/form-d
 
 ### 4.8 Admin Dashboard (`/admin`)
 
-**Goal:** Operational overview for Cradle staff — throughput and health of intake.
+**Goal:** Operational overview for program staff — throughput and health of intake.
 
 **API:** `GET /api/admin/dashboard`
 
@@ -372,7 +372,7 @@ Same body as create (partial fields allowed). Supports JSON or `multipart/form-d
 | Sector / Stage | ecosystemProject |
 | Status | application.status |
 | Readiness | intakeAudits[0].readinessScore |
-| Grant hard pass | eligibility from audit (cradle-grant hardPass) |
+| Grant hard pass | eligibility from audit (grant-track hardPass) |
 | Routing | routingDecisions[0].decisionType |
 | Programme | recommended programme name |
 | Submitted | application.submittedAt |
@@ -417,7 +417,7 @@ Same body as create (partial fields allowed). Supports JSON or `multipart/form-d
    - `adminConfirmed` flag if already confirmed
 
 4. **Grant eligibility checklist**
-   - cradle-grant rules with pass/fail icons
+   - grant-track rules with pass/fail icons
    - hardPass summary
 
 5. **Benchmark deltas** (table)
@@ -443,7 +443,7 @@ Same body as create (partial fields allowed). Supports JSON or `multipart/form-d
 
 On success: toast + refresh page or redirect to pipeline.
 
-**Business rule copy for admin:** “AI recommends; admin confirms. Final accountability stays with Cradle.”
+**Business rule copy for admin:** “AI recommends; admin confirms. Final accountability stays with the platform.”
 
 ---
 
@@ -465,7 +465,7 @@ On success: toast + refresh page or redirect to pipeline.
 
 ### 4.12 Investor Portfolio (`/investor`) — Module 3 preview
 
-**Goal:** Show verified Cradle graduates as investor-ready “passports.”
+**Goal:** Show verified platform graduates as investor-ready “passports.”
 
 **API:** `GET /api/investor/dashboard` (Investor or Admin role)
 
@@ -476,7 +476,7 @@ On success: toast + refresh page or redirect to pipeline.
 2. **Portfolio cards** — each `portfolio[]` item:
    - Company name, sector, stage, founder
    - **Verified passport** — render key fields from `verifiedPassport` JSON (highlights, investorSummary, programmesCompleted, readinessAtGraduation)
-   - Badge: “Cradle Verified” when `cradleVerified === true`
+   - Badge: “Platform Verified” when `platformVerified === true`
 
 ---
 
@@ -508,14 +508,14 @@ Admin Dashboard → see latest application
 
 ### Flow 4 — Mentor preview (Module 2 storytelling)
 ```
-Login as mentor@cradle.com → /mentor
+Login as mentor@linkrouter.my → /mentor
   → Show assigned startups (In_Program) + mentor-track pipeline + upcoming sessions
   → Banner: “Module 2 preview — full matching coming soon”
 ```
 
 ### Flow 5 — Investor preview (Module 3 storytelling)
 ```
-Login as investor@cradle.com → /investor
+Login as investor@linkrouter.my → /investor
   → Show graduated startups with verified passport JSON
   → Banner: “Module 3 preview — live VC handoff coming soon”
 ```
@@ -640,7 +640,7 @@ Set `reaudit=true` to re-run AI audit after save. Supports JSON or multipart (sa
   "module": "verified-handoff",
   "status": "preview",
   "portfolio": [
-    { "name": "NovaAnalytics", "verifiedPassport": { "cradleVerified": true, ... } }
+    { "name": "NovaAnalytics", "verifiedPassport": { "platformVerified": true, ... } }
   ]
 }
 ```
@@ -666,12 +666,12 @@ Set `reaudit=true` to re-run AI audit after save. Supports JSON or multipart (sa
 
 ### 7.1 AI Pitch Audit (Feature 1.1)
 - AI analyzes structured application + optional pitch text.
-- AI compares metrics to **2024 alumni benchmarks** for same sector + stage.
+- AI compares metrics to **2025 alumni benchmarks** for same sector + stage.
 - AI outputs: strengths, risk flags, missing fields, admin summary, founder report.
 - **AI does NOT alone approve or reject grants.**
 
 ### 7.2 Eligibility engine (deterministic)
-Hard rules for Cradle Grant (examples):
+Hard rules for grant (examples):
 - Country = Malaysia
 - Incorporated = true
 - Stage in MVP, Revenue, Growth
@@ -696,7 +696,7 @@ Routing priority (simplified for UI copy):
 
 | Condition | Typical route |
 |-----------|----------------|
-| Grant hard pass + readiness ≥ 65 | Cradle Grant Track |
+| Grant hard pass + readiness ≥ 65 | Grant Track |
 | Idea stage or not incorporated | MYStartup Pre-Accelerator |
 | Runway < 3 months OR missing key financials | Financial Model Repair |
 | Growth + MRR > 50k | VC Readiness |
@@ -788,10 +788,10 @@ After `npm run db:seed` on backend:
 
 | Account | What to show |
 |---------|----------------|
-| `admin@cradle.com` | PayFlow MY (grant candidate), HealthSync, GreenRoute in intake pipeline |
+| `admin@linkrouter.my` | PayFlow MY (grant candidate), HealthSync, GreenRoute in intake pipeline |
 | `founder@demo.com` | GreenRoute application (Idea → likely Pre-Accelerator); submit new apps as this user |
-| `mentor@cradle.com` | PayFlow MY as In_Program assigned startup |
-| `investor@cradle.com` | NovaAnalytics & FarmLink graduated passports |
+| `mentor@linkrouter.my` | PayFlow MY as In_Program assigned startup |
+| `investor@linkrouter.my` | NovaAnalytics & FarmLink graduated passports |
 
 **Seeded applications (all pre-audited):**
 - **PayFlow MY** — Fintech, Revenue, In_Program (admin + mentor demo)
