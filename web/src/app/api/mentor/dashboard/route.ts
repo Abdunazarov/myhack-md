@@ -23,7 +23,7 @@ export async function GET(request: Request) {
             include: { ecosystemProject: true },
             orderBy: { updatedAt: "desc" },
           },
-          historicalOutcomes: { orderBy: { createdAt: "desc" }, take: 5 },
+          historicalOutcomes: { orderBy: { createdAt: "desc" } },
         },
       })
     : await prisma.mentorNode.findFirst({
@@ -32,7 +32,7 @@ export async function GET(request: Request) {
         include: { ecosystemProject: true },
         orderBy: { updatedAt: "desc" },
       },
-      historicalOutcomes: { orderBy: { createdAt: "desc" }, take: 5 },
+      historicalOutcomes: { orderBy: { createdAt: "desc" } },
         },
       });
 
@@ -59,6 +59,42 @@ export async function GET(request: Request) {
 
   const active = node.linkages.filter((l) => l.status === "Active");
   const intervention = node.linkages.filter((l) => l.status === "Requires_Intervention");
+  const completed = node.linkages.filter((l) => l.status === "Completed");
+
+  function parseHealthHistory(feedbackLogs: string): number[] {
+    try {
+      const logs = JSON.parse(feedbackLogs) as Array<{ type?: string; score?: number }>;
+      return logs.filter((e) => e.type === "health" && typeof e.score === "number").map((e) => e.score!);
+    } catch {
+      return [];
+    }
+  }
+
+  const sectorCounts: Record<string, number> = {};
+  for (const l of active) {
+    const s = l.ecosystemProject.sector;
+    sectorCounts[s] = (sectorCounts[s] ?? 0) + 1;
+  }
+
+  const cohortHealthTrend = [0, 1, 2, 3, 4, 5].map((i) => {
+    const scores = active
+      .map((l) => parseHealthHistory(l.feedbackLogs)[i])
+      .filter((s): s is number => typeof s === "number");
+    return scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
+  });
+
+  const historical = node.historicalOutcomes;
+  const outcomeBreakdown = {
+    success: historical.filter((h) => h.outcome === "Success").length,
+    fail: historical.filter((h) => h.outcome === "Fail").length,
+    pivot: historical.filter((h) => h.outcome === "Pivot").length,
+  };
+
+  const skillMatrix = parseSkillMatrix(node.dynamicSkillMatrix);
+  const topSkills = Object.entries(skillMatrix)
+    .sort(([, a], [, b]) => (b as number) - (a as number))
+    .slice(0, 5)
+    .map(([tag, score]) => ({ tag: tag.replace(/_/g, " "), score: Math.round((score as number) * 100) }));
 
   return jsonOk({
     module: "dynamic-cohort-orchestration",
@@ -76,8 +112,20 @@ export async function GET(request: Request) {
     stats: {
       assignedStartups: active.length,
       requiresIntervention: intervention.length,
-      completedSessions: node.linkages.filter((l) => l.status === "Completed").length,
+      completedSessions: completed.length,
       historicalOutcomes: node.historicalOutcomes.length,
+      capacity: node.availabilityCapacity,
+      capacityUsed: active.length + intervention.length,
+    },
+    analytics: {
+      cohortHealthTrend,
+      sectorBreakdown: Object.entries(sectorCounts).map(([sector, count]) => ({ sector, count })),
+      outcomeBreakdown,
+      topSkills,
+      healthDistribution: active.map((l) => ({
+        name: l.ecosystemProject.name,
+        healthScore: l.healthScore,
+      })),
     },
     assignedStartups: active.map((l) => ({
       linkageId: l.id,
@@ -88,6 +136,8 @@ export async function GET(request: Request) {
       healthScore: l.healthScore,
       goal: l.goal,
       lastActivityAt: l.lastActivityAt,
+      healthHistory: parseHealthHistory(l.feedbackLogs),
+      matchScore: l.matchScore,
     })),
     interventionQueue: intervention.map((l) => ({
       linkageId: l.id,
@@ -95,8 +145,9 @@ export async function GET(request: Request) {
       healthScore: l.healthScore,
       goal: l.goal,
     })),
-    recentHistoricalWins: node.historicalOutcomes
+    recentHistoricalWins: historical
       .filter((h) => h.outcome === "Success")
+      .slice(0, 8)
       .map((h) => ({
         startupName: h.startupName,
         sector: h.sector,

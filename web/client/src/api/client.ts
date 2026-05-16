@@ -1,11 +1,19 @@
 import { formatApiValidationDetails } from "../lib/validateApplication";
 import type {
   AdminDashboard,
+  AdminDecision,
+  AdminIntakeDetailResponse,
   ApplicationDetailResponse,
   ApplicationFormData,
+  ApplicationRecord,
   AuthUser,
   CreateApplicationResponse,
   DemoUser,
+  FounderDashboard,
+  MentorDashboard,
+  Programme,
+  RoadblockRequest,
+  RoadblockResponse,
 } from "./types";
 
 const API_BASE = import.meta.env.VITE_API_URL ?? "";
@@ -88,6 +96,77 @@ export async function getApplication(
 export async function getAdminDashboard(token: string): Promise<AdminDashboard> {
   const response = await fetch(`${API_BASE}/api/admin/dashboard`, {
     headers: headers(token),
+  });
+  return parseJson(response);
+}
+
+export async function getMentorDashboard(token: string): Promise<MentorDashboard> {
+  const response = await fetch(`${API_BASE}/api/mentor/dashboard`, {
+    headers: headers(token),
+  });
+  return parseJson(response);
+}
+
+export async function getFounderDashboard(token: string): Promise<FounderDashboard> {
+  const response = await fetch(`${API_BASE}/api/founder/dashboard`, {
+    headers: headers(token),
+  });
+  return parseJson(response);
+}
+
+export async function getApplicationsList(token: string): Promise<ApplicationRecord[]> {
+  const response = await fetch(`${API_BASE}/api/applications`, {
+    headers: headers(token),
+  });
+  const body = await parseJson<{ applications: ApplicationRecord[] }>(response);
+  return body.applications;
+}
+
+export async function getAdminIntake(token: string): Promise<ApplicationRecord[]> {
+  const response = await fetch(`${API_BASE}/api/admin/intake`, {
+    headers: headers(token),
+  });
+  const body = await parseJson<{ applications: ApplicationRecord[] }>(response);
+  return body.applications;
+}
+
+export async function getAdminIntakeDetail(
+  token: string,
+  id: string,
+): Promise<AdminIntakeDetailResponse> {
+  const response = await fetch(`${API_BASE}/api/admin/intake/${id}`, {
+    headers: headers(token),
+  });
+  return parseJson(response);
+}
+
+export async function submitAdminDecision(
+  token: string,
+  id: string,
+  body: AdminDecision,
+): Promise<{ success: boolean; application: ApplicationRecord }> {
+  const response = await fetch(`${API_BASE}/api/admin/intake/${id}/decision`, {
+    method: "POST",
+    headers: headers(token, { "Content-Type": "application/json" }),
+    body: JSON.stringify(body),
+  });
+  return parseJson(response);
+}
+
+export async function getProgrammes(): Promise<Programme[]> {
+  const response = await fetch(`${API_BASE}/api/programmes`);
+  const body = await parseJson<{ programmes: Programme[] }>(response);
+  return body.programmes;
+}
+
+export async function submitRoadblock(
+  token: string,
+  body: RoadblockRequest,
+): Promise<RoadblockResponse> {
+  const response = await fetch(`${API_BASE}/api/founder/roadblock`, {
+    method: "POST",
+    headers: headers(token, { "Content-Type": "application/json" }),
+    body: JSON.stringify(body),
   });
   return parseJson(response);
 }

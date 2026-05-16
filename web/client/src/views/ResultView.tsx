@@ -16,12 +16,34 @@ import {
   Loader2,
 } from "lucide-react";
 import { getApplication } from "../api/client";
-import type { ApplicationDetailResponse, ApplicationStatus, AuditPayload } from "../api/types";
+import type {
+  ApplicationDetailResponse,
+  ApplicationStatus,
+  AuditPayload,
+  RiskFlag,
+} from "../api/types";
+import AuditCharts from "../components/AuditCharts";
 import { useAuth } from "../context/AuthContext";
 import type { ViewType } from "../App";
 
 function statusLabel(status: ApplicationStatus): string {
   return status.replace(/_/g, " ");
+}
+
+function riskTitle(flag: RiskFlag): string {
+  const labels: Record<string, string> = {
+    missing_data: "Data gaps to address",
+    low_runway: "Runway pressure",
+    runway_pressure: "Runway pressure",
+    high_cac: "Elevated customer acquisition cost",
+    pre_revenue: "Pre-revenue stage",
+    not_incorporated: "Incorporation pending",
+    single_pilot_dependency: "Pilot concentration",
+    enterprise_concentration: "Pipeline concentration",
+    geographic_concentration: "Geographic concentration",
+    mrr_gap: "Revenue below grant threshold",
+  };
+  return labels[flag.code] ?? flag.code.replace(/_/g, " ");
 }
 
 function formatDate(iso: string) {
@@ -134,21 +156,7 @@ export default function ResultView({
 
   return (
     <>
-      <header className="bg-surface-bright border-b border-outline-variant fixed top-0 w-full z-50 flex justify-between items-center px-gutter md:px-margin-desktop h-16">
-        <div className="flex items-center gap-2 cursor-pointer" onClick={() => onNavigate("home")}>
-          <Rocket className="text-primary" size={24} />
-          <span className="text-xl font-bold text-primary tracking-tight">Cradle LinkRouter</span>
-        </div>
-        <button
-          type="button"
-          onClick={() => onNavigate("apply")}
-          className="bg-primary text-on-primary px-6 py-2 rounded-xl text-sm font-semibold"
-        >
-          Apply
-        </button>
-      </header>
-
-      <main className="pt-24 pb-12 px-gutter md:px-margin-desktop max-w-7xl mx-auto">
+      <main className="py-8 pb-12 px-gutter md:px-margin-desktop max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
           <div>
             <nav className="flex items-center gap-1 text-on-surface-variant mb-2">
@@ -262,9 +270,19 @@ export default function ResultView({
               </p>
             </div>
 
+            {audit && (
+              <div>
+                <h3 className="text-xl font-semibold mb-4">Performance analytics</h3>
+                <AuditCharts
+                  audit={audit}
+                  metricsHistoryJson={app.ecosystemProject.metricsHistory}
+                />
+              </div>
+            )}
+
             {audit && audit.benchmarkDeltas.length > 0 && (
               <div>
-                <h3 className="text-xl font-semibold mb-4">Benchmark Comparison</h3>
+                <h3 className="text-xl font-semibold mb-4">Benchmark highlights</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {audit.benchmarkDeltas.slice(0, 3).map((b) => (
                     <div
@@ -272,10 +290,10 @@ export default function ResultView({
                       className="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant"
                     >
                       <p className="text-xs font-semibold text-on-surface-variant uppercase">
-                        {b.metricName}
+                        {b.metricName.replace(/_/g, " ")}
                       </p>
                       <div className="flex items-baseline gap-2 mt-1">
-                        <span className="text-2xl font-bold">{b.value}</span>
+                        <span className="text-2xl font-bold">{b.value.toLocaleString()}</span>
                         <span
                           className={`text-xs font-semibold flex items-center ${
                             b.status === "above"
@@ -293,9 +311,7 @@ export default function ResultView({
                           {b.status}
                         </span>
                       </div>
-                      <p className="text-sm text-on-surface-variant mt-2">
-                        Median: {b.median}
-                      </p>
+                      <p className="text-sm text-on-surface-variant mt-2">{b.message}</p>
                     </div>
                   ))}
                 </div>
@@ -323,11 +339,22 @@ export default function ResultView({
               <h4 className="text-sm font-semibold text-error mb-4 uppercase">Risk Flags</h4>
               <ul className="space-y-4">
                 {(audit?.riskFlags ?? []).map((r) => (
-                  <li key={r.code} className="flex items-start gap-2">
+                  <li key={`${r.code}-${r.message}`} className="flex items-start gap-2">
                     <AlertTriangle className="text-error shrink-0 mt-0.5" size={20} />
                     <div>
-                      <p className="text-sm font-semibold">{r.code}</p>
-                      <p className="text-sm text-on-surface-variant">{r.message}</p>
+                      <p className="text-sm font-semibold">{riskTitle(r)}</p>
+                      <p className="text-sm text-on-surface-variant leading-relaxed">{r.message}</p>
+                      <span
+                        className={`inline-block mt-1 text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full ${
+                          r.severity === "high"
+                            ? "bg-error-container/30 text-error"
+                            : r.severity === "medium"
+                              ? "bg-tertiary-container text-on-tertiary-container"
+                              : "bg-surface-container-high text-on-surface-variant"
+                        }`}
+                      >
+                        {r.severity}
+                      </span>
                     </div>
                   </li>
                 ))}
@@ -354,17 +381,6 @@ export default function ResultView({
         </div>
       </main>
 
-      <nav className="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-20 bg-surface-container-lowest border-t border-outline-variant pb-2">
-        <button type="button" onClick={() => onNavigate("home")} className="flex flex-col items-center text-on-surface-variant">
-          <LayoutDashboard size={20} />
-        </button>
-        <button type="button" className="flex flex-col items-center bg-secondary-container rounded-full px-5 py-1">
-          <GitBranch size={20} />
-        </button>
-        <button type="button" className="flex flex-col items-center text-on-surface-variant">
-          <Network size={20} />
-        </button>
-      </nav>
     </>
   );
 }

@@ -5,9 +5,9 @@
   "scripts": {
     "dev": "concurrently -n api,ui -c blue,green \"npm run dev:api\" \"npm run dev:ui\"",
     "dev:api": "next dev --webpack",
-    "dev:ui": "vite --config client/vite.config.ts",
+    "dev:ui": "vite --config client/vite.config.mts",
     "build": "npm run build:ui && prisma generate && next build",
-    "build:ui": "vite build --config client/vite.config.ts",
+    "build:ui": "vite build --config client/vite.config.mts",
     "start": "next start",
     "lint": "eslint",
     "test": "prisma migrate deploy && vitest run",

@@ -242,15 +242,15 @@ export async function seedDatabase() {
     problem: "Urban logistics fleets lack affordable tools to measure and reduce carbon emissions per delivery.",
     solution: "Lightweight route optimization with emissions tracking for last-mile fleets.",
     targetCustomers: "Regional courier and grocery delivery fleets in Klang Valley.",
-    tractionSummary: "LOI from one fleet operator; prototype tested on 200 deliveries.",
+    tractionSummary: "LOI from one fleet operator; prototype tested on 200 deliveries with 12% fuel reduction.",
     mrr: 0,
-    activeUsers: 0,
+    activeUsers: 45,
     pilots: 1,
     revenueGrowthPct: 0,
-    cac: 0,
+    cac: 120,
     burnMonthly: 8000,
     runwayMonths: 8,
-    grossMarginPct: 0,
+    grossMarginPct: 42,
     fundingAsk: 150000,
     useOfFunds: "Build MVP and run paid pilot with two fleet partners.",
     pitchText: "GreenRoute helps Malaysian fleets cut emissions while saving fuel costs.",
@@ -258,6 +258,37 @@ export async function seedDatabase() {
   };
 
   const { app: greenRouteApp } = await createSeededApplication(founderDemoNormalized, grant.id);
+
+  const ecoStreamNormalized = {
+    founderName: "Demo Founder",
+    founderEmail: "founder@demo.com",
+    companyName: "EcoStream Solutions",
+    country: "Malaysia",
+    sector: "SaaS",
+    stage: "Revenue",
+    incorporated: true,
+    companyAgeMonths: 16,
+    problem: "Manufacturers lack real-time visibility into industrial water usage and compliance reporting.",
+    solution: "IoT sensors plus SaaS dashboard for water monitoring, alerts, and ESG compliance exports.",
+    targetCustomers: "Mid-size manufacturers in Penang and Klang Valley industrial zones.",
+    tractionSummary: "18 paying clients, RM18.5k MRR, 28% MoM growth over last quarter.",
+    mrr: 18500,
+    activeUsers: 140,
+    pilots: 3,
+    revenueGrowthPct: 28,
+    cac: 145,
+    burnMonthly: 32000,
+    runwayMonths: 11,
+    grossMarginPct: 58,
+    fundingAsk: 400000,
+    useOfFunds: "Expand sales in KL and JB, hire customer success lead, ISO compliance module.",
+    pitchText: "EcoStream helps Malaysian manufacturers monitor water usage and meet ESG reporting requirements.",
+    submittedAt: new Date().toISOString(),
+  };
+
+  const { app: ecoStreamApp } = await createSeededApplication(ecoStreamNormalized, grant.id, {
+    projectState: "In_Program",
+  });
 
   const healthSyncNormalized = {
     founderName: "Dr. Lim Wei",
@@ -333,9 +364,16 @@ export async function seedDatabase() {
   await runApplicationAudit(payFlowApp.id);
   await runApplicationAudit(greenRouteApp.id);
   await runApplicationAudit(healthSyncApp.id);
+  await runApplicationAudit(ecoStreamApp.id);
+
+  const { applyShowcaseAudits } = await import("./seedShowcase");
+  await applyShowcaseAudits(prisma);
 
   const { seedModule2 } = await import("./seedModule2");
   const mentors = await seedModule2(prisma, payFlowProject.id);
+
+  const { seedMentorShowcase } = await import("./seedMentorShowcase");
+  await seedMentorShowcase(prisma);
 
   console.log(
     "Seed complete: Module 1 (intake/audit/routing) + Module 2 (5 mentors, historical outcomes, active linkages)",

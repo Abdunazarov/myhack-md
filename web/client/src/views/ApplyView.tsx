@@ -1,7 +1,5 @@
 import { useEffect, useState, type FormEvent } from "react";
 import {
-  Rocket,
-  Menu,
   Info,
   ArrowLeft,
   ArrowRight,
@@ -9,10 +7,6 @@ import {
   Hourglass,
   Shapes,
   ShieldCheck,
-  LayoutDashboard,
-  GitBranch,
-  Edit,
-  User,
   Loader2,
 } from "lucide-react";
 import { createApplication } from "../api/client";
@@ -25,6 +19,7 @@ import {
   validateApplicationStep,
 } from "../lib/validateApplication";
 import type { ViewType } from "../App";
+import IntegerInput from "../components/IntegerInput";
 
 const inputClass =
   "w-full h-12 rounded-xl border border-outline-variant focus:border-primary outline-none focus:ring-1 focus:ring-primary bg-surface-container-lowest px-4 text-base";
@@ -36,7 +31,7 @@ export default function ApplyView({
   onNavigate: (view: ViewType) => void;
   onApplicationCreated: (applicationId: string) => void;
 }) {
-  const { token, loginAsRole } = useAuth();
+  const { token, user, loginAsRole } = useAuth();
   const [form, setForm] = useState<ApplicationFormData>(defaultApplicationForm);
   const [step, setStep] = useState(0);
   const [submitting, setSubmitting] = useState(false);
@@ -98,14 +93,6 @@ export default function ApplyView({
       return;
     }
 
-    if (form.founderEmail.toLowerCase() !== "founder@demo.com") {
-      setError(
-        "Demo login uses founder@demo.com — keep that email or sign in with the matching account.",
-      );
-      setStep(0);
-      return;
-    }
-
     setSubmitting(true);
     try {
       let authToken = token;
@@ -117,7 +104,7 @@ export default function ApplyView({
 
       const payload: ApplicationFormData = {
         ...form,
-        founderEmail: form.founderEmail || "founder@demo.com",
+        founderEmail: user?.email ?? form.founderEmail,
         pitchText:
           form.pitchText ||
           `${form.companyName}: ${form.solution}`.slice(0, 500),
@@ -136,34 +123,7 @@ export default function ApplyView({
 
   return (
     <>
-      <header className="bg-surface-bright border-b border-outline-variant fixed top-0 w-full z-50 h-16 flex justify-between items-center px-gutter md:px-margin-desktop">
-        <div className="flex items-center gap-2 cursor-pointer" onClick={() => onNavigate("home")}>
-          <Rocket className="text-primary" size={24} />
-          <h1 className="text-xl font-bold text-primary tracking-tight">Cradle LinkRouter</h1>
-        </div>
-        <div className="hidden md:flex items-center gap-8">
-          <nav className="flex gap-6">
-            <button
-              type="button"
-              onClick={() => onNavigate("home")}
-              className="text-on-surface-variant hover:bg-surface-container-low transition-colors px-2 py-1 rounded-lg text-sm font-semibold"
-            >
-              Home
-            </button>
-            <button
-              type="button"
-              className="text-primary font-bold border-b-2 border-primary text-sm tracking-wide h-16"
-            >
-              Apply
-            </button>
-          </nav>
-        </div>
-        <button type="button" className="md:hidden text-primary">
-          <Menu size={24} />
-        </button>
-      </header>
-
-      <main className="pt-24 pb-32 px-gutter md:px-margin-desktop max-w-7xl mx-auto">
+      <main className="py-8 pb-32 px-gutter md:px-margin-desktop max-w-7xl mx-auto">
         <div className="mb-8">
           <h2 className="text-3xl font-bold mb-2 text-on-background">Accelerator Application</h2>
           <p className="text-base text-on-surface-variant">
@@ -174,8 +134,8 @@ export default function ApplyView({
             <div className="text-sm">
               <p className="font-bold">Demo mode</p>
               <p className="mt-1 opacity-90">
-                Signed in as <strong>founder@demo.com</strong>. Submission runs a live audit against
-                seeded benchmarks.
+                Signed in as <strong>{user?.email ?? "founder@demo.com"}</strong>. Submission runs a
+                live audit against seeded benchmarks.
               </p>
             </div>
           </div>
@@ -284,12 +244,10 @@ export default function ApplyView({
                   <label className="text-sm font-medium text-on-surface-variant">
                     Company age (months)
                   </label>
-                  <input
-                    type="number"
-                    min={0}
+                  <IntegerInput
                     className={inputClass}
                     value={form.companyAgeMonths}
-                    onChange={(e) => update("companyAgeMonths", Number(e.target.value))}
+                    onChange={(v) => update("companyAgeMonths", v)}
                   />
                 </div>
               </div>
@@ -361,44 +319,36 @@ export default function ApplyView({
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-on-surface-variant">MRR (RM)</label>
-                  <input
-                    type="number"
-                    min={0}
+                  <IntegerInput
                     className={inputClass}
                     value={form.mrr}
-                    onChange={(e) => update("mrr", Number(e.target.value))}
+                    onChange={(v) => update("mrr", v)}
                   />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-on-surface-variant">Active users</label>
-                  <input
-                    type="number"
-                    min={0}
+                  <IntegerInput
                     className={inputClass}
                     value={form.activeUsers}
-                    onChange={(e) => update("activeUsers", Number(e.target.value))}
+                    onChange={(v) => update("activeUsers", v)}
                   />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-on-surface-variant">Pilots</label>
-                  <input
-                    type="number"
-                    min={0}
+                  <IntegerInput
                     className={inputClass}
                     value={form.pilots}
-                    onChange={(e) => update("pilots", Number(e.target.value))}
+                    onChange={(v) => update("pilots", v)}
                   />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-on-surface-variant">
                     Revenue growth %
                   </label>
-                  <input
-                    type="number"
-                    min={0}
+                  <IntegerInput
                     className={inputClass}
                     value={form.revenueGrowthPct}
-                    onChange={(e) => update("revenueGrowthPct", Number(e.target.value))}
+                    onChange={(v) => update("revenueGrowthPct", v)}
                   />
                 </div>
               </div>
@@ -408,57 +358,47 @@ export default function ApplyView({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-on-surface-variant">CAC (RM)</label>
-                  <input
-                    type="number"
-                    min={0}
+                  <IntegerInput
                     className={inputClass}
                     value={form.cac}
-                    onChange={(e) => update("cac", Number(e.target.value))}
+                    onChange={(v) => update("cac", v)}
                   />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-on-surface-variant">
                     Monthly burn (RM)
                   </label>
-                  <input
-                    type="number"
-                    min={0}
+                  <IntegerInput
                     className={inputClass}
                     value={form.burnMonthly}
-                    onChange={(e) => update("burnMonthly", Number(e.target.value))}
+                    onChange={(v) => update("burnMonthly", v)}
                   />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-on-surface-variant">Runway (months)</label>
-                  <input
-                    type="number"
-                    min={0}
+                  <IntegerInput
                     className={inputClass}
                     value={form.runwayMonths}
-                    onChange={(e) => update("runwayMonths", Number(e.target.value))}
+                    onChange={(v) => update("runwayMonths", v)}
                   />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-on-surface-variant">
                     Gross margin %
                   </label>
-                  <input
-                    type="number"
-                    min={0}
-                    max={100}
+                  <IntegerInput
                     className={inputClass}
                     value={form.grossMarginPct}
-                    onChange={(e) => update("grossMarginPct", Number(e.target.value))}
+                    max={100}
+                    onChange={(v) => update("grossMarginPct", v)}
                   />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-on-surface-variant">Funding ask (RM)</label>
-                  <input
-                    type="number"
-                    min={0}
+                  <IntegerInput
                     className={inputClass}
                     value={form.fundingAsk}
-                    onChange={(e) => update("fundingAsk", Number(e.target.value))}
+                    onChange={(v) => update("fundingAsk", v)}
                   />
                 </div>
                 <div className="space-y-2 md:col-span-2">
@@ -481,11 +421,7 @@ export default function ApplyView({
                 className="text-error text-sm font-medium bg-error-container/30 p-3 rounded-lg space-y-1"
               >
                 <p>{error}</p>
-                {error.includes("email") || error.includes("founder@demo") ? (
-                  <p className="text-xs font-normal text-on-surface-variant">
-                    Use a full email address like <strong>founder@demo.com</strong> (demo mode).
-                  </p>
-                ) : error.includes("min") || error.includes("characters") || error.includes("Complete this step") ? (
+                {error.includes("min") || error.includes("characters") || error.includes("Complete this step") ? (
                   <p className="text-xs font-normal text-on-surface-variant">
                     Add more detail on problem, solution, traction, and use of funds (see placeholders).
                   </p>
@@ -566,19 +502,6 @@ export default function ApplyView({
         </div>
       </main>
 
-      <nav className="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-20 bg-surface-container-lowest shadow-lg border-t border-outline-variant rounded-t-xl px-4 pb-2">
-        <button type="button" onClick={() => onNavigate("home")} className="flex flex-col items-center text-on-surface-variant">
-          <LayoutDashboard size={20} />
-          <span className="text-[11px] font-medium mt-1">Home</span>
-        </button>
-        <button type="button" className="flex flex-col items-center bg-secondary-container text-on-secondary-container rounded-full px-5 py-1">
-          <Edit size={20} />
-          <span className="text-[11px] font-medium mt-1">Apply</span>
-        </button>
-        <button type="button" className="flex flex-col items-center text-on-surface-variant">
-          <User size={20} />
-        </button>
-      </nav>
     </>
   );
 }
